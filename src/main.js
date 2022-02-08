@@ -2,15 +2,18 @@ import Vue from "vue";
 import Provider from "./Provider.vue";
 import router from "./router";
 import store from "./store";
-import "@babel/polyfill";
-import "./plugins/vuetify";
-import "@mdi/font/css/materialdesignicons.css";
-import "roboto-fontface/css/roboto/roboto-fontface.css";
+import vuetify from "./plugins/vuetify";
+
+//Import Global SCSS
+import "./styles/main.scss";
+import Vuelidate from "vuelidate";
+Vue.use(Vuelidate);
 
 Vue.config.productionTip = false;
 
 new Vue({
 	router,
 	store,
+	vuetify,
 	render: (h) => h(Provider),
 }).$mount("#app");

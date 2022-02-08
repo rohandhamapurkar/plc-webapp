@@ -1,16 +1,12 @@
 import apiEndpoints from "@/api_endpoints";
 
 const initialState = () => ({
-	templatesData: [],
+	templatesList: [],
 });
 export default {
 	namespaced: true,
 	state: initialState(),
 	mutations: {
-		loadTemplatesData(state, mm) {
-			state.mailMeta = JSON.parse(JSON.stringify(mm));
-		},
-		refreshStockistListEmitter(state) {},
 		failure: (s, msg) => {
 			console.log("[failure] ", msg);
 		},
@@ -20,9 +16,12 @@ export default {
 				state[key] = initial[key];
 			});
 		},
+		setTemplatesList(state, data) {
+			state.templatesList = data;
+		},
 	},
 	actions: {
-		getMailMeta: ({ commit, dispatch }, payload) => {
+		getTemplatesList: ({ commit, dispatch }, payload) => {
 			let fail = (msg) => commit("failure", msg);
 			return dispatch(
 				"apiCall",
@@ -35,20 +34,99 @@ export default {
 			)
 				.then((data) => {
 					if (data.ok) {
-						commit("loadTemplatesData", data.files);
-						return data;
+						return {
+							ok: true,
+							totalCount: data.totalCount,
+							fetchCount: data.fetchCount,
+							list: data.data,
+						};
 					} else {
-						fail(data.message || "Failed to load user templates");
-						return false;
+						fail(data.message || "Failed to Load Templates List");
+						return {
+							ok: false,
+							totalCount: data.totalCount,
+							fetchCount: 0,
+							list: [],
+						};
 					}
 				})
 				.catch((err) => {
-					// console.log('Yo ', err);
-					fail(err.toString() || "Failed to load user templates");
+					console.log("Yo ", err);
+					fail(err.toString() || "Failed to Load Templates List");
+					return { ok: false, totalCount: 0, fetchCount: 0, list: [] };
+				});
+		},
+		addTemplate: ({ commit, dispatch }, payload) => {
+			let fail = (msg) => commit("failure", msg);
+			return dispatch(
+				"apiCall",
+				{
+					method: "post",
+					data: payload,
+					url: apiEndpoints.USER_TEMPLATES,
+				},
+				{ root: true }
+			)
+				.then((data) => {
+					if (!data.ok) fail(data.message || "Failed to add Template");
+					return data;
+				})
+				.catch((err) => {
+					fail(err.toString() || "Failed to add Template");
+					return {
+						ok: false,
+						message: err.message,
+					};
+				});
+		},
+		editTemplate: ({ commit, dispatch }, payload) => {
+			let fail = (msg) => commit("failure", msg);
+			return dispatch(
+				"apiCall",
+				{
+					method: "put",
+					data: payload,
+					url: apiEndpoints.USER_TEMPLATES,
+				},
+				{ root: true }
+			)
+				.then((data) => {
+					if (!data.ok) fail(data.message || "Failed to edit Template");
+					return data;
+				})
+				.catch((err) => {
+					fail(err.toString() || "Failed to edit Template");
+					return {
+						ok: false,
+						message: err.message,
+					};
+				});
+		},
+		deleteTemplate: ({ commit, dispatch }, payload) => {
+			let fail = (msg) => commit("failure", msg);
+			return dispatch(
+				"apiCall",
+				{
+					method: "delete",
+					data: payload,
+					url: apiEndpoints.USER_TEMPLATES,
+				},
+				{ root: true }
+			)
+				.then((data) => {
+					if (!data.ok) fail(data.message || "Failed to Delete Template");
+					return data;
+				})
+				.catch((err) => {
+					fail(err.toString() || "Failed to Delete Template");
+					return {
+						ok: false,
+						message: err.message,
+					};
 				});
 		},
 	},
 	getters: {
-		mailMeta: (state) => state.mailMeta,
+		storeTemplatesList: (state) => state.templatesList,
 	},
 };

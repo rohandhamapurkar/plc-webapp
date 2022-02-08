@@ -1,0 +1,59 @@
+// ***********
+// MIXINS FOR MEDIA QUERY
+// ***********
+
+@mixin custom-max($breakpoint) {
+  @media (max-width: #{$breakpoint}) {
+    @content;
+  }
+}
+
+@mixin custom-min($breakpoint) {
+  @media (min-width: #{$breakpoint}) {
+    @content;
+  }
+}
+
+@mixin media-breakpoint-up($breakpoint-name) {
+  @if $breakpoint-name==xs {
+    @media (max-width: #{$xs}) {
+      @content;
+    }
+  } @else if $breakpoint-name==sm {
+    @media (max-width: #{$sm}) {
+      @content;
+    }
+  } @else if $breakpoint-name==md {
+    @media (max-width: #{$md}) {
+      @content;
+    }
+  } @else if $breakpoint-name==lg {
+    @media (max-width: #{$lg}) {
+      @content;
+    }
+  } @else if $breakpoint-name==xl {
+    @media (max-width: #{$xl}) {
+      @content;
+    }
+  }
+}
+
+//Placeholder
+
+@mixin placeholder {
+  ::-webkit-input-placeholder {
+    @content;
+  }
+
+  :-moz-placeholder {
+    @content;
+  }
+
+  ::-moz-placeholder {
+    @content;
+  }
+
+  :-ms-input-placeholder {
+    @content;
+  }
+}

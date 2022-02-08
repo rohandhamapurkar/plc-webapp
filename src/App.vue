@@ -1,168 +1,349 @@
 <template>
 	<v-app>
-		<v-navigation-drawer id="nav-draw" v-model="drawer" fixed app dark>
-			<v-list dense two-line subheader>
-				<v-list-tile v-for="item in routeItems" :key="item.route" @click="openPortal(item)">
-					<v-list-tile-action>
-						<v-icon :color="item.iconColor" medium>{{ item.icon }}</v-icon>
-					</v-list-tile-action>
-					<v-list-tile-content>
-						<v-list-tile-title class="subheading">
-							<span v-if="item.highlight" :style="getColor(item)">{{ item.title }}</span>
-							<span v-else>{{ item.title }}</span>
-						</v-list-tile-title>
-						<v-list-tile-sub-title></v-list-tile-sub-title>
-					</v-list-tile-content>
-				</v-list-tile>
+		<v-navigation-drawer
+			class="navigationDrawerWrapper"
+			v-model="navigationToggle"
+			color="primary"
+			hide-overlay
+			fixed
+			app
+		>
+			<!-- <v-list color="primary" id="navigation-list" flat> -->
+			<v-list id="navigation-list" flat>
+				<template v-for="(navItem, index) of routeItems">
+					<v-list-item
+						:key="navItem.route + '' + index"
+						id="basic-list-item"
+						@click="openPortal(navItem)"
+						:class="{
+							'active-list-item': currentRoute == navItem.route ? true : false,
+						}"
+					>
+						<v-list-item-content>
+							<v-list-item-title>
+								<span
+									class="list-title"
+									:class="{
+										'selected-route': currentRoute == navItem.title ? true : false,
+									}"
+									>{{ navItem.title }}</span
+								>
+							</v-list-item-title>
+						</v-list-item-content>
+					</v-list-item>
+				</template>
 			</v-list>
 		</v-navigation-drawer>
-		<v-toolbar color="light-grey darken-3" app>
-			<v-toolbar-side-icon color="back" @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-			<v-toolbar-title class="font-weight-regular text-uppercase">
-				<span class="back--text">{{ title }}</span>
-			</v-toolbar-title>
+
+		<v-app-bar class="toolbarWrapper" color="primary" app fixed>
+			<v-btn icon x-large @click="toggleNav">
+				<v-icon color="white">mdi-menu</v-icon>
+			</v-btn>
+
+			<v-toolbar-title
+				><span style="color: white">{{ title }}</span></v-toolbar-title
+			>
 			<v-spacer></v-spacer>
-			<v-btn @click="openPortal(logoutPortal)" color="light-grey darken-4" fab small dark>
-				<v-icon>account_circle</v-icon>
+			<div class="toolbar-version">
+				<v-chip color="white"> v {{ version }} </v-chip>
+			</div>
+			<v-btn large icon @click="openPortal(settingsRoute)">
+				<v-icon color="white">mdi-cog</v-icon>
 			</v-btn>
-			<v-btn color="light-grey darken-4" fab small dark>
-				<v-icon>logout</v-icon>
+			<v-btn large icon @click="logoutUser">
+				<v-icon color="white">mdi-logout</v-icon>
 			</v-btn>
-		</v-toolbar>
-		<v-dialog v-model="loaderDialog" persistent width="300">
-			<v-card color="light-grey darken-4" dark>
-				<v-card-text>
-					Please stand by {{ userData.name }}
-					<v-progress-linear indeterminate color="back" class="mb-0"></v-progress-linear>
-				</v-card-text>
-			</v-card>
-		</v-dialog>
-		<v-snackbar v-model="snackbar" left :timeout="snackbarTime" top multi-line>
-			{{ snackbarText }}
-		</v-snackbar>
-		<v-content>
+			<v-tooltip bottom>
+				<template v-slot:activator="{ on, attrs }">
+					<v-avatar class="toolbar-profile" size="40" v-bind="attrs" v-on="on">
+						{{ getProfileName() }}
+					</v-avatar>
+				</template>
+				<span v-if="userData"
+					>{{ userData.usr_data ? userData.usr_data.name : "" }} ({{
+						userData.username ? userData.username : ""
+					}})</span
+				>
+			</v-tooltip>
+		</v-app-bar>
+
+		<v-main>
 			<router-view />
-		</v-content>
+		</v-main>
+
+		<v-snackbar v-model="localSnackbarState" multi-line light top right :timeout="snackbarTime">
+			<div class="snackbarComponentWrapper">
+				<div class="content">{{ snackbarText }}</div>
+				<div class="action-button">
+					<v-btn small fab color="accent" text @click.stop="closeSnackbar">
+						<v-icon>mdi-close</v-icon>
+					</v-btn>
+				</div>
+			</div>
+		</v-snackbar>
+
+		<v-overlay class="app-loader" :value="loaderDialog" :z-index="300">
+			<v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
+		</v-overlay>
 	</v-app>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import helpers from "./helpers";
+import packageJSON from "../package.json";
 export default {
 	name: "App",
-	data() {
-		return {
-			drawer: null,
-			routeItems: [
-				{
-					icon: "data_usage",
-					title: "Dashboard",
-					route: "/",
-					highlight: false,
-				},
-				{
-					icon: "insert_drive_file",
-					title: "My Templates",
-					route: "/templates",
-					highlight: false,
-				},
-				{
-					icon: "table_chart",
-					title: "My Datasets",
-					route: "/datasets",
-					highlight: false,
-				},
-				{
-					icon: "build",
-					title: "Builder",
-					route: "/builder",
-					highlight: false,
-				},
-				{
-					icon: "settings",
-					title: "Workspace Settings",
-					route: "/settings",
-					highlight: false,
-				},
-			],
-			snackbar: false,
-			timeout: 3000,
-			title: "PLC/Dashboard",
-			logoutPortal: { icon: "account_circle", title: "account page", route: "/account-page" },
-		};
+
+	components: {},
+	data: () => ({
+		navigationToggle: false,
+		localSnackbarState: false,
+		currentRoute: "",
+		title: "TITLE",
+		settingsRoute: {
+			title: "Settings",
+			route: "/settings",
+		},
+		routeItems: [
+			{
+				icon: "data_usage",
+				title: "Dashboard",
+				route: "/",
+				highlight: false,
+			},
+			{
+				icon: "insert_drive_file",
+				title: "My Templates",
+				route: "/templates",
+				highlight: false,
+			},
+			{
+				icon: "table_chart",
+				title: "My Datasets",
+				route: "/datasets",
+				highlight: false,
+			},
+			{
+				icon: "build",
+				title: "Builder",
+				route: "/builder",
+				highlight: false,
+			},
+			{
+				icon: "settings",
+				title: "Workspace Settings",
+				route: "/settings",
+				highlight: false,
+			},
+		],
+		logoutPortal: { icon: "account_circle", title: "account page", route: "/account-page" },
+		version: "1.0.0",
+	}),
+	async created() {
+		this.version = packageJSON.version;
+		this.setRouteItems();
+		if (helpers.getCurrentRoute() != "settings") {
+			this.currentRoute = this.routeItems.find((e) => e.route == "/" + helpers.getCurrentRoute()).title || "Dashboard";
+		} else {
+			this.currentRoute = this.settingsRoute.title;
+		}
+		// this.title = this.title.split("/")[0] + " / " + this.currentRoute;
+		this.title = this.currentRoute;
 	},
-	created() {},
 	methods: {
-		...mapMutations(["openLoaderDialog", "openSnackbar", "closeSnackbar"]),
-		openPortal(item) {
-			this.title = this.title.split("/")[0] + "/" + item.title;
-			if (item.prop) {
-				this.$router.push({
-					name: item.route,
-					params: {
-						propItem: item.prop,
-					},
-				});
-			} else {
-				this.$router.push({
-					path: item.route,
-				});
+		...mapActions(["logout"]),
+		...mapMutations(["openLoaderDialog", "closeLoaderDialog", "resetState", "openSnackbar", "closeSnackbar"]),
+		getProfileName() {
+			if (this.userData.usr_data && this.userData.usr_data.name) {
+				return this.userData.usr_data.name
+					.split(" ")
+					.map((e) => e.split("")[0])
+					.join("");
+			}
+			return "";
+		},
+		setRouteItems() {
+			if (this.userType == this.ADMIN) {
+				let tempArray = [];
+				this.routeItems = this.routeItems.concat(tempArray);
 			}
 		},
-		getColor(item) {
-			return {
-				color: item.highlight,
-			};
+		toggleNav() {
+			this.navigationToggle = !this.navigationToggle;
+		},
+		async logoutUser() {
+			console.log("User Logged Out");
+			this.openSnackbar({ text: "You are being logged out" });
+			this.openLoaderDialog();
+			await this.logout();
+			this.closeLoaderDialog();
+			if (this.currentRoute != "Dashboard") this.$router.push({ path: "/" });
+			localStorage.clear();
+			this.resetState();
+			this.$emit("userHasLoggedOut");
+		},
+		openPortal(item) {
+			if (item.title !== this.currentRoute) {
+				// this.title = this.title.split("/")[0] + "/" + item.title;
+				this.currentRoute = item.title;
+				this.title = item.title;
+				if (item.hasOwnProperty("prop")) {
+					this.$router.push({
+						name: item.route,
+						params: {
+							propItem: item.prop,
+						},
+					});
+				} else {
+					this.$router.push({
+						path: item.route,
+					});
+				}
+			}
 		},
 	},
 	computed: {
-		...mapGetters(["loaderDialog", "snackbarState", "snackbarText", "snackbarTime", "userData"]),
+		...mapGetters([
+			"loaderDialog",
+			"userData",
+			"userType",
+			"snackbarState",
+			"snackbarText",
+			"snackbarTime",
+			"ADMIN",
+			"USER",
+		]),
 	},
-	mounted() {
-		this.$store.subscribe((mutation) => {
-			if (mutation.type === "openSnackbar") {
-				this.snackbar = true;
-			} else if (mutation.type === "closeSnackbar") {
-				this.snackbar = false;
+	watch: {
+		snackbarState(nv) {
+			this.localSnackbarState = nv;
+		},
+		localSnackbarState(nv) {
+			if (!nv) {
+				this.closeSnackbar();
 			}
-		});
-		this.openPortal({
-			icon: "bubble_chart",
-			title: "Dashboard",
-			route: "/",
-		});
+		},
 	},
 };
 </script>
-
 <style lang="scss" scoped>
-.spinner-wrapper {
-	height: 75px;
-	overflow: auto;
+// .title-wrapper {
+// 	// transform: translateX(-50%);
+// 	text-align: center;
+// 	width: 100%;
+// 	font-size: 20px;
+// 	color: white;
+// 	padding-top: 24px;
+// 	padding-bottom: 54px;
+// }
+
+.logo-wrapper {
+	// background-color: white;
+	width: 100%;
+	height: auto;
+	padding: 10px;
+	img {
+		height: 50%;
+		width: 50%;
+	}
+}
+
+.toolbarWrapper {
+	background: white;
+}
+.navigationDrawerWrapper {
+	background: white;
+}
+
+.snackbarComponentWrapper {
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
 }
 
-v-dialog {
-	box-shadow: none;
+.toolbar-version {
+	font-weight: 600;
+}
+
+.toolbar-profile {
+	font-size: 14px;
+	font-weight: 600;
+	color: black;
+	border: 3px solid black;
+}
+
+#navigation-list {
+	// background-color: $primary;
+
+	.v-list-item__content {
+		padding: 0px !important;
+	}
+	.v-list-group__header {
+		font-size: 16px;
+		&:not(.v-list-item--active) {
+			.list-group-title {
+				color: white;
+			}
+		}
+
+		&.v-list-item--active {
+			background-color: $error;
+		}
+	}
+
+	.list-title {
+		display: block;
+		color: $secondaryFontColor;
+		padding: 12px;
+		width: 98%;
+		margin: 4px 0;
+	}
+
+	.selected-route {
+		background-color: $secondary;
+		border-radius: 6px;
+		color: white;
+		box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+			0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+	}
+
+	.list-group-title-dot {
+		height: 12px;
+		width: 12px;
+		background-color: $secondary;
+		border-radius: 50%;
+		float: right;
+	}
 }
 </style>
 
 <style lang="scss">
-// ScrollBar Styles to make it look like macbook (Will only work on modern browsers)
-::-webkit-scrollbar {
-	width: 8px;
-}
+#navigation-list {
+	.v-list-group .v-list-group__header .v-list-item__icon.v-list-group__header__append-icon {
+		margin-left: 0px;
+	}
 
-::-webkit-scrollbar-track {
-	// -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-	border-radius: 10px;
-}
+	.v-list-item__icon.v-list-group__header__append-icon {
+		.v-icon.v-icon {
+			color: white;
+		}
+	}
 
-::-webkit-scrollbar-thumb {
-	background-color: lightgray;
-	border-radius: 10px;
-	// -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+	.v-list-group__header {
+		&.v-list-item--active {
+			background-color: $secondary;
+			border-left: 4px solid $secondary;
+		}
+	}
+}
+#basic-list-item {
+	.v-list-item.v-list-item--link.active-list-item {
+		background-color: $secondary;
+		border-left: 4px solid $secondary;
+	}
+}
+.app-loader {
+	z-index: 10;
 }
 </style>

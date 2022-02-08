@@ -1,0 +1,26 @@
+// Extra small	xs	small to large handset	< 600px
+// Small	sm	small to medium tablet	600px > < 960px
+// Medium	md	large tablet to laptop	960px > < 1264px*
+// Large	lg	desktop	1264px* > < 1904px*
+// Extra large	xl	4k and ultra-wides	> 1904px*
+
+$xs: 600px;
+$sm: 960px;
+$md: 1264px;
+$lg: 1904px;
+// $xl: 600px;
+
+$red: red;
+
+// $primary: #00887a; // Primary Green (Mainly for header and navbar)
+$primary: #440381; // Primary Green (Mainly for header and navbar)
+$primaryFontColor: white; // font navy blue; font color on the overview screen
+$secondary: #ec368d; // light purple,
+$secondaryFontColor: white; // font gray; font color on the master screen for the muted text
+$tertiary: #ffa5a5; // light navy blue; this is for the expanded state of the menu item
+$tertiaryFontColor: black; // light gray,
+$accent: #ffd6c0; // yellow , this is the selected state of the link
+$accentFontColor: black;
+$error: #940000; // red
+$background: #37b6c923; // primary green but transparent (Mainly for light background)
+$gradeBlockBackground: #ecf39e; // primary green but transparent (Mainly for light background)
