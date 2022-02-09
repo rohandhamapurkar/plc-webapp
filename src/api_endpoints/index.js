@@ -8,4 +8,5 @@ export default {
 	EXTEND_USER_SESSION: BASE_URL + "Session/v0.1/extend-session",
 
 	USER_TEMPLATES: BASE_URL + "/user/v1.0/templates",
+	USER_DATASETS: BASE_URL + "/user/v1.0/datasets",
 };

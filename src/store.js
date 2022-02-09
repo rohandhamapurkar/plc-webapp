@@ -5,6 +5,7 @@ import axios from "axios";
 import apiEndpoints from "@/api_endpoints";
 
 import Templates from "./views/templates/store";
+import Datasets from "./views/datasets/store";
 
 Vue.use(Vuex);
 const initialState = () => ({
@@ -68,6 +69,7 @@ export default new Vuex.Store({
 	strict: true,
 	modules: {
 		Templates,
+		Datasets,
 	},
 	state: initialState(),
 	mutations: {
