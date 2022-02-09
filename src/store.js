@@ -55,7 +55,7 @@ let apiErrorFunction = ({ err, commit, reject }) => {
 			errMsg = errMsg[Object.keys(errMsg)[0]];
 		}
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 	}
 	reject({
 		ok: false,
@@ -201,7 +201,7 @@ export default new Vuex.Store({
 		extendUserSession: ({ commit, state }, { refreshToken, currentState }) => {
 			let fail = (msg) => commit("loginFail", msg);
 			return axios
-				.get(constants.EXTEND_USER_SESSION, {
+				.get(apiEndpoints.EXTEND_USER_SESSION, {
 					headers: { refresh_token: refreshToken },
 				})
 				.then((response) => {
@@ -226,7 +226,7 @@ export default new Vuex.Store({
 					}
 				})
 				.catch((err) => {
-					console.log("Yo ", err);
+					// console.log("Yo ", err);
 					fail(err.toString() || "Failed to auto extend user session");
 					return { ok: false };
 				});
@@ -266,7 +266,7 @@ export default new Vuex.Store({
 					return { ok: true };
 				})
 				.catch((err) => {
-					console.log("[Error] login", err);
+					// console.log("[Error] login", err);
 					if (err.message == "Network Error") {
 						fail("Network Error");
 					} else {
