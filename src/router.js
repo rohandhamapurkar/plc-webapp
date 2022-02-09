@@ -8,7 +8,7 @@ export default new VueRouter({
 		{
 			path: "/",
 			name: "dashboard",
-			component: () => import("./views/Dashboard.vue"),
+			component: () => import("./views/dashboard"),
 			meta: { policy: [10, 30] },
 		},
 		{
@@ -32,13 +32,13 @@ export default new VueRouter({
 		{
 			path: "/builder",
 			name: "builder",
-			component: () => import("./views/Builder.vue"),
+			component: () => import("./views/builder"),
 			meta: { policy: [30] },
 		},
 		{
 			path: "/settings",
 			name: "settings",
-			component: () => import("./views/Settings.vue"),
+			component: () => import("./views/settings"),
 			meta: { policy: [30] },
 		},
 	],
