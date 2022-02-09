@@ -125,7 +125,7 @@ export default {
 				key: "templateImageURL",
 				width: "half",
 				acceptRules: "image/png, image/jpeg",
-				rules: [(value) => !value || value.size <= 5000000 || "Template image should be less than or equal to 5 MB!"],
+				rules: [(value) => !value || value.size <= 15000000 || "Template image should be less than or equal to 15 MB!"],
 			},
 		],
 		templatesList: [
@@ -135,9 +135,9 @@ export default {
 					createdOn: new Date(),
 					updatedOn: new Date(),
 				},
-				templateImageURL:
-					"https://images.unsplash.com/photo-1532153955177-f59af40d6472?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3087&q=80",
+				templateImageURL: "https://i1.lensdump.com/i/r7yvIe.jpg",
 				name: "Felix Wedding Invitation",
+				imageDimensions: { width: "581", height: "874" },
 			},
 			{
 				_id: 2,
@@ -145,9 +145,9 @@ export default {
 					createdOn: new Date(),
 					updatedOn: new Date(),
 				},
-				templateImageURL:
-					"https://images.unsplash.com/photo-1532153955177-f59af40d6472?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3087&q=80",
+				templateImageURL: "https://i2.lensdump.com/i/r7yLmk.jpg",
 				name: "Pablo Birthday Card",
+				imageDimensions: { width: "1086", height: "812" },
 			},
 		],
 	}),
