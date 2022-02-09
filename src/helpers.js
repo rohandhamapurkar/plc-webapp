@@ -42,7 +42,7 @@ let URLtoFile = (url, fileName, contentType) => {
 				const blob = await response.blob();
 				return new File([blob], fileName, { type: contentType });
 			} catch (e) {
-				console.log(e);
+				// console.log(e);
 				return null;
 			}
 		})

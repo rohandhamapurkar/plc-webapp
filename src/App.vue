@@ -173,7 +173,7 @@ export default {
 			this.navigationToggle = !this.navigationToggle;
 		},
 		async logoutUser() {
-			console.log("User Logged Out");
+			// console.log("User Logged Out");
 			this.openSnackbar({ text: "You are being logged out" });
 			this.openLoaderDialog();
 			await this.logout();

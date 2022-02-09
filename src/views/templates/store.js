@@ -8,7 +8,7 @@ export default {
 	state: initialState(),
 	mutations: {
 		failure: (s, msg) => {
-			console.log("[failure] ", msg);
+			// console.log("[failure] ", msg);
 		},
 		resetState(state) {
 			const initial = initialState();
@@ -51,7 +51,7 @@ export default {
 					}
 				})
 				.catch((err) => {
-					console.log("Yo ", err);
+					// console.log("Yo ", err);
 					fail(err.toString() || "Failed to Load Templates List");
 					return { ok: false, totalCount: 0, fetchCount: 0, list: [] };
 				});

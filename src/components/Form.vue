@@ -572,8 +572,8 @@ export default {
 		keyUpdated(watchKey, nv, ov) {
 			for (let i of this.inputConfig) {
 				if (i.type == "MultiInputWithGroupKey" && watchKey == i.keyToGroup) {
-					console.log("MultiInputWithGroupKey OV", ov);
-					console.log("MultiInputWithGroupKey NV", nv);
+					// console.log("MultiInputWithGroupKey OV", ov);
+					// console.log("MultiInputWithGroupKey NV", nv);
 					if (!ov || !ov.length) {
 						// Enters this If when there is no OV, i.e when it is initialized for the first time (Usually when Add Button is clicked to create a new entry)
 						this.formElements[i.key] = nv.map((e) => ({

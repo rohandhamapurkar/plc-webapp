@@ -26,7 +26,7 @@ export default {
 	created() {
 		this.expiryBuffer = 60 * 1000;
 		let id = setTimeout(function () {}, 0); // This Clear all references to any previous timeouts
-		console.log("In memory timeouts", id);
+		// console.log("In memory timeouts", id);
 		while (id--) {
 			clearTimeout(id); // Will do nothing if no timeout with id is present
 		}
@@ -56,7 +56,7 @@ export default {
 				if (this.isTokenExpired(decodedAuthToken.exp)) {
 					this.autoLoginUser();
 					this.startRefreshCycle();
-					console.log("AUTO LOGIN HAPPENED");
+					// console.log("AUTO LOGIN HAPPENED");
 					this.loaderDialog = false;
 				} else if (this.isTokenExpired(decodedRefreshToken.exp)) {
 					await this.extendUserSession({
