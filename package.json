@@ -10,6 +10,7 @@
 	"dependencies": {
 		"axios": "^0.25.0",
 		"core-js": "^3.6.5",
+		"fabric": "^5.0.0",
 		"jsonwebtoken": "^8.5.1",
 		"long-timeout": "^0.1.1",
 		"moment-timezone": "^0.5.34",
