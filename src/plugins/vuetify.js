@@ -8,11 +8,11 @@ export default new Vuetify({
 		themes: {
 			light: {
 				primary: "#440381",
-				primaryFontColor: "white",
+				primaryFontColor: "#ffffff",
 				secondary: "#EC368D",
-				secondaryFontColor: "white",
+				secondaryFontColor: "#ffffff",
 				tertiary: "#FFA5A5",
-				tertiaryFontColor: "black",
+				tertiaryFontColor: "#000000",
 				accent: "#FFD6C0",
 				error: "#940000",
 			},
