@@ -3,11 +3,15 @@
 		<div class="action-tools-wrapper">
 			<div class="add-text" @click="handleAddTextClick">
 				<div class="icon-wrapper">+</div>
-				<div class="text-wrapper">addText</div>
+				<div class="text-wrapper">Add Text</div>
+			</div>
+			<div class="add-text" @click="handleDataDrivenTextClick">
+				<div class="icon-wrapper">+</div>
+				<div class="text-wrapper">Add Data Driven Text</div>
 			</div>
 			<div class="add-image" @click="handleUploadImageClick">
 				<div class="icon-wrapper">+</div>
-				<div class="text-wrapper">addImage</div>
+				<div class="text-wrapper">Add Image</div>
 			</div>
 		</div>
 		<template v-if="Object.keys(activeObject).length">
@@ -58,6 +62,9 @@ export default {
 		handleAddTextClick() {
 			eventBus.$emit("add-text-object");
 		},
+		handleDataDrivenTextClick() {
+			eventBus.$emit("add-data-driven-text-object");
+		},
 		handleUploadImageClick() {
 			eventBus.$emit("add-image-object");
 		},
@@ -89,7 +96,7 @@ export default {
 	padding-top: 20px;
 	.add-text,
 	.add-image {
-		flex: 0 0 48%;
+		flex: 0 0 33%;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

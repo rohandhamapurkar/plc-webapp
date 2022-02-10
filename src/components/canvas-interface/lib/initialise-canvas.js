@@ -1,5 +1,5 @@
 import { fabric } from "fabric";
-let deleteIconSVG = require("../../../assets/deleteIcon.svg");
+let deleteIconSVG = require("@/assets/deleteIcon.svg");
 const initializeCanvas = {
 	initCanvas() {
 		this.createCanvas({

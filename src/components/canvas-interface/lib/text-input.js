@@ -22,7 +22,7 @@ const textInput = {
 		}
 	},
 
-	handleAddTextEvent(text = "Lorem Ipsum", textProperties = false) {
+	handleAddTextEvent(text = "Lorem Ipsum", textProperties = false, editable = false) {
 		if (!textProperties) {
 			textProperties = {
 				id: uuidv4(),

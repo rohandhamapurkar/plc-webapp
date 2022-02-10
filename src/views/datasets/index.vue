@@ -93,13 +93,13 @@
 </template>
 
 <script>
-import inputFormMixin from "../../mixins/inputFormMixin";
-import defaultCRUDMixin from "../../mixins/defaultCRUDMixins";
-import searchMixin from "../../mixins/searchMixin";
-import helperMixin from "../../mixins/helperMixins";
+import inputFormMixin from "@/mixins/inputFormMixin";
+import defaultCRUDMixin from "@/mixins/defaultCRUDMixins";
+import searchMixin from "@/mixins/searchMixin";
+import helperMixin from "@/mixins/helperMixins";
 import { mapActions, mapMutations } from "vuex";
 
-import UploadModal from "../../components/UploadModal.vue";
+import UploadModal from "@/components/UploadModal.vue";
 
 export default {
 	name: "Datasets",

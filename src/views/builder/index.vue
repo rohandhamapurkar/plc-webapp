@@ -51,6 +51,25 @@
 					<v-autocomplete v-model="pageSize" :items="pageSizeList" auto-select-first solo dense></v-autocomplete>
 				</div>
 			</div>
+			<DialogModal @closeModal="dialogModal = false" :toggleModal="dialogModal" :modalName="'Select Dataset and Field'">
+				<template v-slot:modalContent>
+					<v-autocomplete
+						v-model="selectedDatasetDetail"
+						:items="items"
+						:loading="isLoading"
+						:search-input.sync="search"
+						color="white"
+						hide-no-data
+						hide-selected
+						item-text="Description"
+						item-value="API"
+						label="Public APIs"
+						placeholder="Start typing to Search"
+						prepend-icon="mdi-database-search"
+						return-object
+					></v-autocomplete>
+				</template>
+			</DialogModal>
 		</div>
 	</div>
 </template>
@@ -58,8 +77,9 @@
 <script>
 import CanvasWrapper from "@/components/canvas/CanvasWrapper.vue";
 import CanvasEditorWrapper from "@/components/canvas/CanvasEditorWrapper.vue";
-import searchMixin from "../../mixins/searchMixin";
-import helperMixin from "../../mixins/helperMixins";
+import searchMixin from "@/mixins/searchMixin";
+import helperMixin from "@/mixins/helperMixins";
+import { eventBus } from "@/event-bus";
 import { mapActions, mapMutations } from "vuex";
 
 export default {
@@ -69,12 +89,28 @@ export default {
 	},
 	mixins: [helperMixin, searchMixin],
 	mounted() {},
-	created() {},
+	beforeDestroy() {
+		eventBus.$off("data-driven-text-add-event");
+	},
+	created() {
+		eventBus.$on("data-driven-text-add-event", function () {
+			let datasetId = "2d37sad3awd";
+			let datasetName = "testDataset";
+			let fieldName = "name";
+			eventBus.$emit("dataset-selection", { datasetId, datasetName, fieldName });
+		});
+	},
 	data: () => ({
 		selectedRender: false,
 		name: "Template",
 		placeholder: "Search Templates",
+		dialogModal: false,
 		activeState: true,
+		descriptionLimit: 60,
+		entries: [],
+		isLoading: false,
+		selectedDatasetDetail: null,
+		search: null,
 		selectedSearchConfig: [
 			{
 				name: "Template Name",
@@ -106,12 +142,43 @@ export default {
 				imageDimensions: { width: "1086", height: "812" },
 			},
 		],
-		// selectedRender: {
-		// 	imageUrl:
-		// 		"https://images.unsplash.com/photo-1532153955177-f59af40d6472",
-		// 	dimension: { width: "3087", height: "4628" },
-		// },
 	}),
+	computed: {
+		items() {
+			return this.entries.map((entry) => {
+				const Description =
+					entry.Description.length > this.descriptionLimit
+						? entry.Description.slice(0, this.descriptionLimit) + "..."
+						: entry.Description;
+
+				return Object.assign({}, entry, { Description });
+			});
+		},
+	},
+	watch: {
+		search(val) {
+			// Items have already been loaded
+			if (this.items.length > 0) return;
+
+			// Items have already been requested
+			if (this.isLoading) return;
+
+			this.isLoading = true;
+
+			// Lazily load input items
+			fetch("https://api.publicapis.org/entries")
+				.then((res) => res.json())
+				.then((res) => {
+					const { count, entries } = res;
+					this.count = count;
+					this.entries = entries;
+				})
+				.catch((err) => {
+					console.log(err);
+				})
+				.finally(() => (this.isLoading = false));
+		},
+	},
 	methods: {
 		...mapActions("Templates", ["getTemplatesList"]),
 		...mapMutations("Templates", ["setTemplatesList"]),

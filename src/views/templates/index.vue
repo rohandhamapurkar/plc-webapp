@@ -74,12 +74,12 @@
 </template>
 
 <script>
-import inputFormMixin from "../../mixins/inputFormMixin";
-import defaultCRUDMixin from "../../mixins/defaultCRUDMixins";
-import searchMixin from "../../mixins/searchMixin";
-import helperMixin from "../../mixins/helperMixins";
-import helpers from "../../helpers";
-import DialogModal from "../../components/DialogModal.vue";
+import inputFormMixin from "@/mixins/inputFormMixin";
+import defaultCRUDMixin from "@/mixins/defaultCRUDMixins";
+import searchMixin from "@/mixins/searchMixin";
+import helperMixin from "@/mixins/helperMixins";
+import helpers from "@/helpers";
+import DialogModal from "@/components/DialogModal.vue";
 import { required, minLength } from "vuelidate/lib/validators";
 import { mapActions, mapMutations } from "vuex";
 
