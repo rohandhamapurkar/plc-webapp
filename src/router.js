@@ -41,5 +41,11 @@ export default new VueRouter({
 			component: () => import("./views/settings"),
 			meta: { policy: [30] },
 		},
+		{
+			path: "/jobs",
+			name: "jobs",
+			component: () => import("./views/jobs"),
+			meta: { policy: [30] },
+		},
 	],
 });

@@ -6,6 +6,7 @@ import apiEndpoints from "@/api_endpoints";
 
 import Templates from "./views/templates/store";
 import Datasets from "./views/datasets/store";
+import Builder from "./views/datasets/builder";
 
 Vue.use(Vuex);
 const initialState = () => ({
@@ -30,7 +31,7 @@ const initialState = () => ({
 });
 
 let apiErrorFunction = ({ err, commit, reject }) => {
-	// console.log("[HTTP API Request Error]", err);
+	console.log("[HTTP API Request Error]", err);
 	if (err.message == "Network Error") {
 		commit("openSnackbar", { text: "Network Error" });
 		console.error("Network Error");
@@ -56,7 +57,7 @@ let apiErrorFunction = ({ err, commit, reject }) => {
 			errMsg = errMsg[Object.keys(errMsg)[0]];
 		}
 	} catch (e) {
-		// console.log(e);
+		console.log(e);
 	}
 	reject({
 		ok: false,
@@ -70,6 +71,7 @@ export default new Vuex.Store({
 	modules: {
 		Templates,
 		Datasets,
+		Builder,
 	},
 	state: initialState(),
 	mutations: {
@@ -171,7 +173,7 @@ export default new Vuex.Store({
 					},
 				})
 					.then((response) => {
-						// console.log(response)
+						// console.log(response);
 						let data = response.data;
 						resolve(data);
 					})
@@ -189,8 +191,8 @@ export default new Vuex.Store({
 						Authorization: state.authToken,
 					},
 					onDownloadProgress: (progressEvent) => {
-						// console.log(progressEvent);
-						// console.log((progressEvent.loaded * 100)/progressEvent.total);
+						console.log(progressEvent);
+						console.log((progressEvent.loaded * 100) / progressEvent.total);
 					},
 				})
 					.then((response) => {
@@ -228,7 +230,7 @@ export default new Vuex.Store({
 					}
 				})
 				.catch((err) => {
-					// console.log("Yo ", err);
+					console.log("[Error] ", err);
 					fail(err.toString() || "Failed to auto extend user session");
 					return { ok: false };
 				});
@@ -268,7 +270,7 @@ export default new Vuex.Store({
 					return { ok: true };
 				})
 				.catch((err) => {
-					// console.log("[Error] login", err);
+					console.log("[Error] login", err);
 					if (err.message == "Network Error") {
 						fail("Network Error");
 					} else {

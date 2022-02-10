@@ -1,6 +1,6 @@
 const isBuildVersion = process.env.NODE_ENV === "production";
 
-const BASE_URL = isBuildVersion ? window.location.origin : "http://localhost:7777";
+const BASE_URL = isBuildVersion ? window.location.origin : "http://localhost:3000";
 
 export default {
 	LOGIN: BASE_URL + "/common/v1.0/login",
@@ -9,4 +9,5 @@ export default {
 
 	USER_TEMPLATES: BASE_URL + "/user/v1.0/templates",
 	USER_DATASETS: BASE_URL + "/user/v1.0/datasets",
+	USER_SUBMIT_JOB: BASE_URL + "/user/v1.0/job/submit",
 };
