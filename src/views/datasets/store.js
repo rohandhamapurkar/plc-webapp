@@ -1,23 +1,18 @@
 import apiEndpoints from "@/api_endpoints";
 
-const initialState = () => ({
-	datasetsList: [],
-});
+const initialState = () => ({});
 export default {
 	namespaced: true,
 	state: initialState(),
 	mutations: {
 		failure: (s, msg) => {
-			// console.log("[failure] ", msg);
+			console.error("[failure] ", msg);
 		},
 		resetState(state) {
 			const initial = initialState();
 			Object.keys(initial).forEach((key) => {
 				state[key] = initial[key];
 			});
-		},
-		setDatasetsList(state, data) {
-			state.datasetsList = data;
 		},
 	},
 	actions: {
@@ -51,7 +46,7 @@ export default {
 					}
 				})
 				.catch((err) => {
-					// console.log("Yo ", err);
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to Load Datasets List");
 					return { ok: false, totalCount: 0, fetchCount: 0, list: [] };
 				});
@@ -77,6 +72,7 @@ export default {
 					return data;
 				})
 				.catch((err) => {
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to upload dataset file");
 					return {
 						ok: false,
@@ -100,6 +96,7 @@ export default {
 					return data;
 				})
 				.catch((err) => {
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to Delete Dataset");
 					return {
 						ok: false,
@@ -122,7 +119,6 @@ export default {
 						return {
 							ok: true,
 							rows: data.rows,
-							headers: data.headers,
 						};
 					} else {
 						fail(data.message || "Failed to Load Dataset Data");
@@ -134,13 +130,11 @@ export default {
 					}
 				})
 				.catch((err) => {
-					// console.log("Yo ", err);
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to Load Datasets Data");
 					return { ok: false, rows: [], headers: [] };
 				});
 		},
 	},
-	getters: {
-		storeDatasetsList: (state) => state.datasetsList,
-	},
+	getters: {},
 };

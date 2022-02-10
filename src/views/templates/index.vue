@@ -90,12 +90,11 @@ export default {
 		DialogModal,
 	},
 	async created() {
-		// this.getData();
+		this.getData();
 	},
 	data: () => ({
 		name: "Template",
 		placeholder: "Search Templates",
-		activeState: true,
 		selectedCardInfo: {},
 		dialogModal: false,
 		dialogModalTitle: "",
@@ -128,35 +127,13 @@ export default {
 				rules: [(value) => !value || value.size <= 15000000 || "Template image should be less than or equal to 15 MB!"],
 			},
 		],
-		templatesList: [
-			{
-				_id: 1,
-				record: {
-					createdOn: new Date(),
-					updatedOn: new Date(),
-				},
-				templateImageURL: "https://i1.lensdump.com/i/r7yvIe.jpg",
-				name: "Felix Wedding Invitation",
-				imageDimensions: { width: "581", height: "874" },
-			},
-			{
-				_id: 2,
-				record: {
-					createdOn: new Date(),
-					updatedOn: new Date(),
-				},
-				templateImageURL: "https://i2.lensdump.com/i/r7yLmk.jpg",
-				name: "Pablo Birthday Card",
-				imageDimensions: { width: "1086", height: "812" },
-			},
-		],
+		templatesList: [],
 	}),
 	computed: {},
 	methods: {
 		...mapActions("Templates", ["getTemplatesList", "addTemplate", "editTemplate", "deleteTemplate"]),
-		...mapMutations("Templates", ["setTemplatesList"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
-		getData(callMutation = false) {
+		getData() {
 			this.openLoaderDialog();
 			this.getTemplatesList({
 				filter: this.filter,
@@ -167,19 +144,11 @@ export default {
 				this.templatesList = this.checkForErrorMessage(data, "template");
 				this.totalCount = data.totalCount;
 				this.fetchCount = data.fetchCount;
-				if (callMutation) {
-					this.setTemplatesList(this.templatesList);
-				}
 			});
 		},
 
 		advanceSearch(filterObject) {
 			this.filter = { ...filterObject };
-			if (this.filter.active) {
-				this.activeState = false;
-			} else {
-				this.activeState = true;
-			}
 			this.pageNo = 1;
 			this.getData();
 		},
@@ -201,7 +170,7 @@ export default {
 					this.closeLoaderDialog();
 					if (data.ok) {
 						this.openSnackbar({ text: "Sucessfully Added Template" });
-						this.getData(true);
+						this.getData();
 						this.closeForm();
 					} else {
 						this.openSnackbar({ text: data.message });
@@ -212,7 +181,7 @@ export default {
 					this.closeLoaderDialog();
 					if (data.ok) {
 						this.openSnackbar({ text: "Sucessfully Edited Template" });
-						this.getData(true);
+						this.getData();
 						this.closeForm();
 					} else {
 						this.openSnackbar({ text: data.message });
@@ -236,7 +205,7 @@ export default {
 		},
 
 		deleteTemplateEntry(entry) {
-			if (window.confirm("Do you really want to the template?")) {
+			if (window.confirm("Do you really want to delete the template?")) {
 				this.openLoaderDialog();
 				this.deleteTemplate({
 					_id: entry._id,

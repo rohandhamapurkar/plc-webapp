@@ -1,6 +1,7 @@
 <template>
 	<div class="enhance-wrapper default-page-padding">
 		<div v-if="selectedRender" class="render-enhance-wrapper">
+			<v-btn @click="resetState" color="primary" text> Exit Builder </v-btn>
 			<div class="render-enhance-canvas-wrapper">
 				<CanvasWrapper :selectedRender="selectedRender" />
 			</div>
@@ -16,7 +17,7 @@
 					<v-card color="white" class="dialog-modal">
 						<v-autocomplete
 							v-model="selectedDatasetDetails"
-							:items="entries"
+							:items="datasetsList"
 							:loading="isLoading"
 							:search-input.sync="search"
 							color="black"
@@ -111,6 +112,7 @@ export default {
 		eventBus.$off("submit-for-processing-event");
 	},
 	created() {
+		this.getData();
 		eventBus.$on("data-driven-text-add-event", () => {
 			this.clearDatasetSelection();
 			this.dialogModal = true;
@@ -123,8 +125,7 @@ export default {
 		name: "Template",
 		placeholder: "Search Templates",
 		dialogModal: false,
-		activeState: true,
-		entries: [],
+		datasetsList: [],
 		isLoading: false,
 
 		selectedDatasetDetails: null,
@@ -140,28 +141,7 @@ export default {
 				defaultValue: "",
 			},
 		],
-		templatesList: [
-			{
-				_id: 1,
-				record: {
-					createdOn: new Date(),
-					updatedOn: new Date(),
-				},
-				templateImageURL: "https://i1.lensdump.com/i/r7yvIe.jpg",
-				name: "Felix Wedding Invitation",
-				imageDimensions: { width: "581", height: "874" },
-			},
-			{
-				_id: 2,
-				record: {
-					createdOn: new Date(),
-					updatedOn: new Date(),
-				},
-				templateImageURL: "https://i2.lensdump.com/i/r7yLmk.jpg",
-				name: "Pablo Birthday Card",
-				imageDimensions: { width: "1086", height: "812" },
-			},
-		],
+		templatesList: [],
 	}),
 	computed: {},
 	watch: {
@@ -176,37 +156,22 @@ export default {
 
 			this.isLoading = true;
 
-			// Lazily load input items
-
-			let arr = [
-				{
-					_id: 1,
-					record: {
-						createdOn: new Date(),
-					},
-					name: "Felix Wedding Invitees",
-					headers: ["field_1", "field_2", "field_3"],
-				},
-				{
-					_id: 2,
-					record: {
-						createdOn: new Date(),
-					},
-					name: "Pablo Birthday Invitees",
-					headers: ["field_1", "field_2", "field_3"],
-				},
-			].filter((elem) => new RegExp(val, "ig").test(elem.name));
-
-			this.entries = arr;
-			this.count = arr.length;
-			this.isLoading = false;
+			this.getDatasetsList({
+				filter: { search_text: val },
+				pageSize: 10,
+				pageNo: 1,
+			}).then((data) => {
+				this.datasetsList = this.checkForErrorMessage(data, "dataset");
+				this.isLoading = false;
+			});
 		},
 	},
 	methods: {
 		...mapActions("Templates", ["getTemplatesList"]),
-		...mapMutations("Templates", ["setTemplatesList"]),
+		...mapActions("Datasets", ["getDatasetsList"]),
+		...mapActions("Builder", ["submitJob"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
-		getData(callMutation = false) {
+		getData() {
 			this.openLoaderDialog();
 			this.getTemplatesList({
 				filter: this.filter,
@@ -217,18 +182,10 @@ export default {
 				this.templatesList = this.checkForErrorMessage(data, "template");
 				this.totalCount = data.totalCount;
 				this.fetchCount = data.fetchCount;
-				if (callMutation) {
-					this.setTemplatesList(this.templatesList);
-				}
 			});
 		},
 		advanceSearch(filterObject) {
 			this.filter = { ...filterObject };
-			if (this.filter.active) {
-				this.activeState = false;
-			} else {
-				this.activeState = true;
-			}
 			this.pageNo = 1;
 			this.getData();
 		},
@@ -275,12 +232,17 @@ export default {
 						})
 					),
 			};
-			console.log(payload);
-			// this.openLoaderDialog();
-			// this.resetState();
-			// setTimeout(() => {
-			// 	this.closeLoaderDialog();
-			// }, 5000);
+
+			this.resetState();
+			this.openLoaderDialog();
+			this.submitJob(payload).then((data) => {
+				this.closeLoaderDialog();
+				if (data.ok) {
+					this.openSnackbar({ text: "Sucessfully submitted job for processing" });
+				} else {
+					this.openSnackbar({ text: data.message });
+				}
+			});
 		},
 
 		clearDatasetSelection() {

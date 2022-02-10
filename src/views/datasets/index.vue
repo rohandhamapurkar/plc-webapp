@@ -93,7 +93,6 @@
 </template>
 
 <script>
-import inputFormMixin from "@/mixins/inputFormMixin";
 import defaultCRUDMixin from "@/mixins/defaultCRUDMixins";
 import searchMixin from "@/mixins/searchMixin";
 import helperMixin from "@/mixins/helperMixins";
@@ -103,17 +102,16 @@ import UploadModal from "@/components/UploadModal.vue";
 
 export default {
 	name: "Datasets",
-	mixins: [defaultCRUDMixin, helperMixin, inputFormMixin, searchMixin],
+	mixins: [defaultCRUDMixin, helperMixin, searchMixin],
 	components: {
 		UploadModal,
 	},
 	async created() {
-		// this.getData();
+		this.getData();
 	},
 	data: () => ({
 		name: "Datasets",
 		placeholder: "Search Datasets",
-		activeState: true,
 		uploadModal: false,
 		selectedSearchConfig: [
 			{
@@ -125,52 +123,15 @@ export default {
 			},
 		],
 		selectedDataset: {},
-		selectedDatasetHeaders: ["field_1", "field_2"],
-		selectedDatasetData: [
-			{
-				field_1: "Frozen Yogurt",
-				field_2: 159,
-			},
-			{
-				field_1: "Frozen Yogurt",
-				field_2: 159,
-			},
-			{
-				field_1: "Frozen Yogurt",
-				field_2: 159,
-			},
-			{
-				field_1: "Frozen Yogurt",
-				field_2: 159,
-			},
-			{
-				field_1: "Frozen Yogurt",
-				field_2: 159,
-			},
-		],
-		datasetsList: [
-			{
-				_id: 1,
-				record: {
-					createdOn: new Date(),
-				},
-				name: "Felix Wedding Invitees",
-			},
-			{
-				_id: 2,
-				record: {
-					createdOn: new Date(),
-				},
-				name: "Pablo Birthday Invitees",
-			},
-		],
+		selectedDatasetHeaders: [],
+		selectedDatasetData: [],
+		datasetsList: [],
 	}),
 	computed: {},
 	methods: {
 		...mapActions("Datasets", ["getDatasetsList", "getDatasetData", "uploadDataset", "deleteDataset"]),
-		...mapMutations("Datasets", ["setDatasetsList"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
-		getData(callMutation = false) {
+		getData() {
 			this.openLoaderDialog();
 			this.getDatasetsList({
 				filter: this.filter,
@@ -178,22 +139,15 @@ export default {
 				pageNo: this.pageNo,
 			}).then((data) => {
 				this.closeLoaderDialog();
-				this.datasetsList = this.checkForErrorMessage(data, "template");
+				this.datasetsList = this.checkForErrorMessage(data, "dataset");
 				this.totalCount = data.totalCount;
 				this.fetchCount = data.fetchCount;
-				if (callMutation) {
-					this.setDatasetsList(this.datasetsList);
-				}
 			});
 		},
 
 		advanceSearch(filterObject) {
 			this.filter = { ...filterObject };
-			if (this.filter.active) {
-				this.activeState = false;
-			} else {
-				this.activeState = true;
-			}
+
 			this.pageNo = 1;
 			this.getData();
 		},
@@ -205,7 +159,7 @@ export default {
 				_id: datasetItem._id,
 			}).then((data) => {
 				this.closeLoaderDialog();
-				this.selectedDatasetHeaders = data.headers;
+				this.selectedDatasetHeaders = datasetItem.headers;
 				this.selectedDatasetData = data.rows;
 				this.viewMoreModal = true;
 			});

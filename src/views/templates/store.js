@@ -1,23 +1,18 @@
 import apiEndpoints from "@/api_endpoints";
 
-const initialState = () => ({
-	templatesList: [],
-});
+const initialState = () => ({});
 export default {
 	namespaced: true,
 	state: initialState(),
 	mutations: {
 		failure: (s, msg) => {
-			// console.log("[failure] ", msg);
+			console.error("[failure] ", msg);
 		},
 		resetState(state) {
 			const initial = initialState();
 			Object.keys(initial).forEach((key) => {
 				state[key] = initial[key];
 			});
-		},
-		setTemplatesList(state, data) {
-			state.templatesList = data;
 		},
 	},
 	actions: {
@@ -51,7 +46,7 @@ export default {
 					}
 				})
 				.catch((err) => {
-					// console.log("Yo ", err);
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to Load Templates List");
 					return { ok: false, totalCount: 0, fetchCount: 0, list: [] };
 				});
@@ -72,6 +67,7 @@ export default {
 					return data;
 				})
 				.catch((err) => {
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to add Template");
 					return {
 						ok: false,
@@ -95,6 +91,7 @@ export default {
 					return data;
 				})
 				.catch((err) => {
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to edit Template");
 					return {
 						ok: false,
@@ -118,6 +115,7 @@ export default {
 					return data;
 				})
 				.catch((err) => {
+					console.error("Err:", err);
 					fail(err.toString() || "Failed to Delete Template");
 					return {
 						ok: false,
@@ -126,7 +124,5 @@ export default {
 				});
 		},
 	},
-	getters: {
-		storeTemplatesList: (state) => state.templatesList,
-	},
+	getters: {},
 };
