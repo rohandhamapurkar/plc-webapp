@@ -18,12 +18,15 @@
 <script>
 import AddElementsOnCanvas from "@/components/canvas/AddElementsOnCanvas.vue";
 import { eventBus } from "@/event-bus";
+import { v4 as uuidv4 } from "uuid";
 
 export default {
 	components: {
 		AddElementsOnCanvas,
 	},
-	props: {},
+	props: {
+		selectedRender: { required: true, default: true },
+	},
 	data() {
 		return {
 			tab: "",
@@ -53,59 +56,68 @@ export default {
 			];
 		},
 		handleSaveButtonClick() {
-			eventBus.$emit("get-all-canvas-properties-and-elements");
+			if (window.confirm("Do you really want to process this image?")) {
+				eventBus.$emit("get-all-canvas-properties-and-elements");
+			}
 		},
 
-		handleCanvasPropertiesAndElementsEvent(latestCanvasRef) {},
+		handleCanvasPropertiesAndElementsEvent(latestCanvasRef) {
+			eventBus.$emit("submit-for-processing-event", this.getNormalizedRenderObject(latestCanvasRef));
+		},
 
-		// getNormalizedRenderObject(latestCanvasRef) {
-		// 	const tempRenderObject = JSON.parse(JSON.stringify(this.selectedRender));
-		// 	const { imageObjects, textObjects } = this.getImageAndTextObjects(latestCanvasRef.addedCanvasElements);
+		getNormalizedRenderObject(latestCanvasRef) {
+			const tempRenderObject = JSON.parse(JSON.stringify(this.selectedRender));
+			const { imageObjects, textObjects } = this.getImageAndTextObjects(latestCanvasRef.addedCanvasElements);
 
-		// 	tempRenderObject.additionalBrandObjects.imageObjects = imageObjects;
-		// 	tempRenderObject.additionalBrandObjects.textObjects = textObjects;
-		// 	tempRenderObject.attributes = latestCanvasRef.canvasAttributes;
-		// 	tempRenderObject.thumbnailUrl = latestCanvasRef.thumbnailUrl;
-		// 	// console.log({ tempRenderObject })
-		// 	return tempRenderObject;
-		// },
-		// getNormalizedTemplateObject(latestCanvasRef) {
-		// 	// console.log({ latestCanvasRef })
-		// 	const tempTemplateObject = {
-		// 		_id: uuidv4(),
-		// 		imageUrl: latestCanvasRef.templateImageUrl,
-		// 		templateObjects: {
-		// 			textObjects: [],
-		// 			imageObjects: [],
-		// 			mainImage: {
-		// 				width: this.selectedRender.dimension.width,
-		// 				height: this.selectedRender.dimension.height,
-		// 			},
-		// 		},
-		// 		createdBy: uuidv4(),
-		// 	};
-		// 	const { imageObjects, textObjects } = this.getImageAndTextObjects(latestCanvasRef.addedCanvasElements);
-		// 	tempTemplateObject.templateObjects.textObjects = textObjects;
-		// 	tempTemplateObject.templateObjects.imageObjects = imageObjects;
-		// 	return tempTemplateObject;
-		// },
-		// getImageAndTextObjects(allCanvasObjects) {
-		// 	const imageObjects = [];
-		// 	const textObjects = [];
-		// 	for (const object of allCanvasObjects) {
-		// 		switch (object.type) {
-		// 			case "INTERACTIVE_TEXT": {
-		// 				textObjects.push(object);
-		// 				break;
-		// 			}
-		// 			case "IMAGE": {
-		// 				imageObjects.push(object);
-		// 				break;
-		// 			}
-		// 		}
-		// 	}
-		// 	return { imageObjects, textObjects };
-		// },
+			tempRenderObject.additionalBrandObjects = {};
+			tempRenderObject.additionalBrandObjects.imageObjects = imageObjects;
+			tempRenderObject.additionalBrandObjects.textObjects = textObjects;
+			tempRenderObject.attributes = latestCanvasRef.canvasAttributes;
+			// tempRenderObject.thumbnailUrl = latestCanvasRef.thumbnailUrl;
+			// console.log({ tempRenderObject })
+			return tempRenderObject;
+		},
+		getNormalizedTemplateObject(latestCanvasRef) {
+			// console.log({ latestCanvasRef })
+			const tempTemplateObject = {
+				_id: uuidv4(),
+				imageUrl: latestCanvasRef.templateImageUrl,
+				templateObjects: {
+					textObjects: [],
+					imageObjects: [],
+					mainImage: {
+						width: this.selectedRender.dimension.width,
+						height: this.selectedRender.dimension.height,
+					},
+				},
+				createdBy: uuidv4(),
+			};
+			const { imageObjects, textObjects } = this.getImageAndTextObjects(latestCanvasRef.addedCanvasElements);
+			tempTemplateObject.templateObjects.textObjects = textObjects;
+			tempTemplateObject.templateObjects.imageObjects = imageObjects;
+			return tempTemplateObject;
+		},
+		getImageAndTextObjects(allCanvasObjects) {
+			const imageObjects = [];
+			const textObjects = [];
+			for (const object of allCanvasObjects) {
+				switch (object.type) {
+					case "INTERACTIVE_TEXT": {
+						textObjects.push(object);
+						break;
+					}
+					case "TEXT": {
+						textObjects.push(object);
+						break;
+					}
+					case "IMAGE": {
+						imageObjects.push(object);
+						break;
+					}
+				}
+			}
+			return { imageObjects, textObjects };
+		},
 	},
 };
 </script>

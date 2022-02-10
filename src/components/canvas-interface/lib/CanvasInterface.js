@@ -65,6 +65,29 @@ class CanvasInterface {
 					},
 				};
 			}
+			case "text": {
+				return {
+					id: activeObject.id,
+					type: "TEXT",
+					text: activeObject.text,
+					position: {
+						top: activeObject.top,
+						left: activeObject.left,
+						scaleX: activeObject.scaleX,
+						scaleY: activeObject.scaleY,
+						angle: activeObject.angle,
+					},
+					style: {
+						color: activeObject.fill,
+						fontFamily: activeObject.fontFamily,
+						fontSize: activeObject.fontSize,
+						fontWeight: activeObject.fontWeight,
+						fontStyle: activeObject.fontStyle,
+						underline: activeObject.underline,
+						horizontalAlignment: activeObject.textAlign,
+					},
+				};
+			}
 			case "image": {
 				return {
 					id: activeObject.id,

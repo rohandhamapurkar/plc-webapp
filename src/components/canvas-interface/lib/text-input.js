@@ -22,7 +22,7 @@ const textInput = {
 		}
 	},
 
-	handleAddTextEvent(text = "Lorem Ipsum", textProperties = false, editable = false) {
+	handleAddTextEvent(text = "Lorem Ipsum", textProperties = false, textType = "IText") {
 		if (!textProperties) {
 			textProperties = {
 				id: uuidv4(),
@@ -35,7 +35,7 @@ const textInput = {
 				fill: "#000",
 			};
 		}
-		const textObject = new fabric.IText(text, textProperties);
+		const textObject = new fabric[textType](text, textProperties);
 		this.activeCanvasObject = textObject;
 		this.canvasObject.add(textObject);
 		this.canvasObject.setActiveObject(textObject);

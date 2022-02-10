@@ -59,17 +59,21 @@ export default {
 				eventBus.$emit("data-driven-text-add-event");
 			});
 			eventBus.$on("dataset-selection", (datasetDetails) => {
-				this.something.handleAddTextEvent(`{{${datasetDetails.datasetName}.${datasetDetails.fieldName}}}`, {
-					id: "datadriven_" + datasetDetails.datasetId + "_" + uuidv4(),
-					left: this.selectedRender.dimension.width / 2,
-					top: this.selectedRender.dimension.height / 2,
-					lockSkewingX: true,
-					lockSkewingY: true,
-					fontSize: "40", // Font Size
-					fontFamily: "Arial, Helvetica, sans-serif", // Font Family
-					fill: "#000",
-					editable: false,
-				});
+				this.something.handleAddTextEvent(
+					`${datasetDetails.datasetName}.${datasetDetails.fieldName}`,
+					{
+						id: "dataDriven_" + datasetDetails.datasetId + "_" + uuidv4(),
+						left: this.selectedRender.dimension.width / 2,
+						top: this.selectedRender.dimension.height / 2,
+						lockSkewingX: true,
+						lockSkewingY: true,
+						fontSize: "40", // Font Size
+						fontFamily: "Arial, Helvetica, sans-serif", // Font Family
+						fill: "#000",
+						editable: false,
+					},
+					"Text"
+				);
 			});
 			eventBus.$on("update-text-attribute", (data) => {
 				this.something.handleUpdateTextAttribute(data);

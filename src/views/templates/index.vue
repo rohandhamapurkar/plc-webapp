@@ -155,6 +155,7 @@ export default {
 	methods: {
 		...mapActions("Templates", ["getTemplatesList", "addTemplate", "editTemplate", "deleteTemplate"]),
 		...mapMutations("Templates", ["setTemplatesList"]),
+		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 		getData(callMutation = false) {
 			this.openLoaderDialog();
 			this.getTemplatesList({

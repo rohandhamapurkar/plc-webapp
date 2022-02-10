@@ -5,8 +5,42 @@
 				<CanvasWrapper :selectedRender="selectedRender" />
 			</div>
 			<div class="render-enhance-canvas-editor-wrapper">
-				<CanvasEditorWrapper />
+				<CanvasEditorWrapper :selectedRender="selectedRender" />
 			</div>
+			<DialogModal
+				@closeModal="closeDatasetSelectionModal"
+				:toggleModal="dialogModal"
+				:modalName="'Select Dataset and Field'"
+			>
+				<template v-slot:modalContent>
+					<v-card color="white" class="dialog-modal">
+						<v-autocomplete
+							v-model="selectedDatasetDetails"
+							:items="entries"
+							:loading="isLoading"
+							:search-input.sync="search"
+							color="black"
+							hide-no-data
+							item-text="name"
+							item-value="value"
+							label="Search Datasets"
+							placeholder="Start typing to Search Dataset"
+							prepend-icon="mdi-database-search"
+							return-object
+						></v-autocomplete>
+						<v-autocomplete
+							v-if="selectedDatasetDetails"
+							v-model="selectedDatasetField"
+							:items="selectedDatasetDetails.headers"
+							dense
+							filled
+							label="Select Header"
+						></v-autocomplete>
+						<v-btn v-if="selectedDatasetField" @click="submitSelectedDataset" color="primary" text> Submit </v-btn>
+						<!-- hide-selected -->
+					</v-card>
+				</template>
+			</DialogModal>
 		</div>
 		<div v-else>
 			<div class="templates-search-bar">
@@ -51,25 +85,6 @@
 					<v-autocomplete v-model="pageSize" :items="pageSizeList" auto-select-first solo dense></v-autocomplete>
 				</div>
 			</div>
-			<DialogModal @closeModal="dialogModal = false" :toggleModal="dialogModal" :modalName="'Select Dataset and Field'">
-				<template v-slot:modalContent>
-					<v-autocomplete
-						v-model="selectedDatasetDetail"
-						:items="items"
-						:loading="isLoading"
-						:search-input.sync="search"
-						color="white"
-						hide-no-data
-						hide-selected
-						item-text="Description"
-						item-value="API"
-						label="Public APIs"
-						placeholder="Start typing to Search"
-						prepend-icon="mdi-database-search"
-						return-object
-					></v-autocomplete>
-				</template>
-			</DialogModal>
 		</div>
 	</div>
 </template>
@@ -77,6 +92,7 @@
 <script>
 import CanvasWrapper from "@/components/canvas/CanvasWrapper.vue";
 import CanvasEditorWrapper from "@/components/canvas/CanvasEditorWrapper.vue";
+import DialogModal from "@/components/DialogModal.vue";
 import searchMixin from "@/mixins/searchMixin";
 import helperMixin from "@/mixins/helperMixins";
 import { eventBus } from "@/event-bus";
@@ -86,19 +102,21 @@ export default {
 	components: {
 		CanvasWrapper,
 		CanvasEditorWrapper,
+		DialogModal,
 	},
 	mixins: [helperMixin, searchMixin],
 	mounted() {},
 	beforeDestroy() {
 		eventBus.$off("data-driven-text-add-event");
+		eventBus.$off("submit-for-processing-event");
 	},
 	created() {
-		eventBus.$on("data-driven-text-add-event", function () {
-			let datasetId = "2d37sad3awd";
-			let datasetName = "testDataset";
-			let fieldName = "name";
-			eventBus.$emit("dataset-selection", { datasetId, datasetName, fieldName });
+		eventBus.$on("data-driven-text-add-event", () => {
+			this.clearDatasetSelection();
+			this.dialogModal = true;
 		});
+
+		eventBus.$on("submit-for-processing-event", this.onSubmitForProcessing);
 	},
 	data: () => ({
 		selectedRender: false,
@@ -106,10 +124,12 @@ export default {
 		placeholder: "Search Templates",
 		dialogModal: false,
 		activeState: true,
-		descriptionLimit: 60,
 		entries: [],
 		isLoading: false,
-		selectedDatasetDetail: null,
+
+		selectedDatasetDetails: null,
+		selectedDatasetField: null,
+
 		search: null,
 		selectedSearchConfig: [
 			{
@@ -143,45 +163,49 @@ export default {
 			},
 		],
 	}),
-	computed: {
-		items() {
-			return this.entries.map((entry) => {
-				const Description =
-					entry.Description.length > this.descriptionLimit
-						? entry.Description.slice(0, this.descriptionLimit) + "..."
-						: entry.Description;
-
-				return Object.assign({}, entry, { Description });
-			});
-		},
-	},
+	computed: {},
 	watch: {
+		selectedDatasetDetails(val) {
+			if (val == null) {
+				this.selectedDatasetField = null;
+			}
+		},
 		search(val) {
-			// Items have already been loaded
-			if (this.items.length > 0) return;
-
 			// Items have already been requested
 			if (this.isLoading) return;
 
 			this.isLoading = true;
 
 			// Lazily load input items
-			fetch("https://api.publicapis.org/entries")
-				.then((res) => res.json())
-				.then((res) => {
-					const { count, entries } = res;
-					this.count = count;
-					this.entries = entries;
-				})
-				.catch((err) => {
-					console.log(err);
-				})
-				.finally(() => (this.isLoading = false));
+
+			let arr = [
+				{
+					_id: 1,
+					record: {
+						createdOn: new Date(),
+					},
+					name: "Felix Wedding Invitees",
+					headers: ["field_1", "field_2", "field_3"],
+				},
+				{
+					_id: 2,
+					record: {
+						createdOn: new Date(),
+					},
+					name: "Pablo Birthday Invitees",
+					headers: ["field_1", "field_2", "field_3"],
+				},
+			].filter((elem) => new RegExp(val, "ig").test(elem.name));
+
+			this.entries = arr;
+			this.count = arr.length;
+			this.isLoading = false;
 		},
 	},
 	methods: {
 		...mapActions("Templates", ["getTemplatesList"]),
 		...mapMutations("Templates", ["setTemplatesList"]),
+		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 		getData(callMutation = false) {
 			this.openLoaderDialog();
 			this.getTemplatesList({
@@ -209,10 +233,80 @@ export default {
 			this.getData();
 		},
 
+		resetState() {
+			this.selectedRender = false;
+			this.selectedDatasetDetails = null;
+			this.selectedDatasetField = null;
+		},
+
+		onSubmitForProcessing(finalCanvasReferenceObject) {
+			let fCO = JSON.parse(JSON.stringify(finalCanvasReferenceObject));
+			let payload = {
+				templateId: fCO.template._id,
+				config: fCO.additionalBrandObjects.textObjects
+					.map((elem) => {
+						if (elem.id.indexOf("dataDriven_") > -1) {
+							let idParts = elem.id.split("_");
+							let textParts = elem.text.split(".");
+							return {
+								type: "from_dataset",
+								datasetId: idParts[1],
+								dataField: textParts[1],
+								position: elem.position,
+								style: elem.style,
+							};
+						} else {
+							return {
+								type: "static",
+								text: elem.text,
+								position: elem.position,
+								style: elem.style,
+							};
+						}
+					})
+					.concat(
+						fCO.additionalBrandObjects.imageObjects.map((elem) => {
+							return {
+								type: "image",
+								url: elem.imageRef,
+								attributes: elem.attributes,
+								position: elem.position,
+							};
+						})
+					),
+			};
+			console.log(payload);
+			// this.openLoaderDialog();
+			// this.resetState();
+			// setTimeout(() => {
+			// 	this.closeLoaderDialog();
+			// }, 5000);
+		},
+
+		clearDatasetSelection() {
+			this.selectedDatasetDetails = null;
+			this.selectedDatasetField = null;
+		},
+		closeDatasetSelectionModal() {
+			this.dialogModal = false;
+			this.clearDatasetSelection();
+		},
+		submitSelectedDataset() {
+			eventBus.$emit("dataset-selection", {
+				datasetId: this.selectedDatasetDetails._id,
+				datasetName: this.selectedDatasetDetails.name,
+				fieldName: this.selectedDatasetField,
+			});
+			this.closeDatasetSelectionModal();
+		},
+
 		setSelectedRenderObject(templateItem) {
 			this.selectedRender = {};
-			this.selectedRender.imageUrl = templateItem.templateImageURL;
-			this.selectedRender.dimension = templateItem.imageDimensions;
+			this.selectedRender = {
+				imageUrl: templateItem.templateImageURL,
+				dimension: templateItem.imageDimensions,
+				template: templateItem,
+			};
 		},
 	},
 };
@@ -247,5 +341,8 @@ export default {
 	justify-content: center;
 	text-align: center;
 	flex-direction: column;
+}
+.dialog-modal {
+	height: 500px;
 }
 </style>

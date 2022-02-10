@@ -169,6 +169,7 @@ export default {
 	methods: {
 		...mapActions("Datasets", ["getDatasetsList", "getDatasetData", "uploadDataset", "deleteDataset"]),
 		...mapMutations("Datasets", ["setDatasetsList"]),
+		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 		getData(callMutation = false) {
 			this.openLoaderDialog();
 			this.getDatasetsList({
