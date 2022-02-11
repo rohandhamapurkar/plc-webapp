@@ -345,6 +345,36 @@ export default new Vuex.Store({
 					return { ok: false };
 				});
 		},
+		uploadImageToSignedUrl: ({ commit, dispatch }, payload) => {
+			let fail = (msg) => commit("failure", msg);
+			let { uploadUrl, formData } = payload;
+			delete payload.uploadUrl;
+			return dispatch(
+				"apiCallWithHeaderConfig",
+				{
+					partConfig: {
+						method: "post",
+						data: formData,
+						url: uploadUrl,
+					},
+					headerConfig: {
+						"Content-Type": "application/x-www-form-urlencoded",
+					},
+				},
+				{ root: true }
+			)
+				.then((data) => {
+					if (!data.ok) fail(data.message || "Failed to upload affiliates file");
+					return data;
+				})
+				.catch((err) => {
+					fail(err.toString() || "Failed to upload affiliates file");
+					return {
+						ok: false,
+						message: err.message,
+					};
+				});
+		},
 	},
 	getters: {
 		loaderDialog: (state) => state.loaderDialog,

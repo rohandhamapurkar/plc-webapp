@@ -131,7 +131,14 @@ export default {
 	}),
 	computed: {},
 	methods: {
-		...mapActions("Templates", ["getTemplatesList", "addTemplate", "editTemplate", "deleteTemplate"]),
+		...mapActions("Templates", [
+			"getTemplatesList",
+			"addTemplate",
+			"editTemplate",
+			"deleteTemplate",
+			"getSignedUrlForTemplateImage",
+		]),
+		...mapActions(["uploadImageToSignedUrl"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 		getData() {
 			this.openLoaderDialog();
@@ -156,38 +163,59 @@ export default {
 		async formOutput(data) {
 			var imageFile = data.templateImageURL;
 			var formData = JSON.parse(JSON.stringify(data));
-			formData.templateImageURL = imageFile;
+			// formData.templateImageURL = imageFile;
 
-			if (formData.templateImageURL) {
-				formData.templateImageURL = await helpers.toBase64(formData.templateImageURL);
-			} else {
-				formData.templateImageURL = null;
-			}
+			// if (formData.templateImageURL) {
+			// 	formData.templateImageURL = await helpers.toBase64(formData.templateImageURL);
+			// } else {
+			// 	formData.templateImageURL = null;
+			// }
 
-			this.openLoaderDialog();
-			if (!this.isEditMode) {
-				this.addAddress(formData).then((data) => {
-					this.closeLoaderDialog();
-					if (data.ok) {
-						this.openSnackbar({ text: "Sucessfully Added Template" });
-						this.getData();
-						this.closeForm();
-					} else {
-						this.openSnackbar({ text: data.message });
+			this.getSignedUrlForTemplateImage({
+				fileName: imageFile.name,
+				fileType: "template",
+				fileSize: imageFile.size,
+			}).then((data) => {
+				if (data.ok) {
+					let formData = new FormData();
+					formData.append("file", imageFile);
+					for (let key in data.uploadMetaData.fields) {
+						formData.append(key, data.uploadMetaData.fields[key]);
 					}
-				});
-			} else {
-				this.editAddress(formData).then((data) => {
-					this.closeLoaderDialog();
-					if (data.ok) {
-						this.openSnackbar({ text: "Sucessfully Edited Template" });
-						this.getData();
-						this.closeForm();
-					} else {
-						this.openSnackbar({ text: data.message });
-					}
-				});
-			}
+					this.uploadImageToSignedUrl({
+						uploadUrl: data.uploadMetaData.url,
+						formData,
+					}).then((data) => {
+						console.log(data);
+					});
+					// this.openLoaderDialog();
+					// if (!this.isEditMode) {
+					// 	this.addAddress(formData).then((data) => {
+					// 		this.closeLoaderDialog();
+					// 		if (data.ok) {
+					// 			this.openSnackbar({ text: "Sucessfully Added Template" });
+					// 			this.getData();
+					// 			this.closeForm();
+					// 		} else {
+					// 			this.openSnackbar({ text: data.message });
+					// 		}
+					// 	});
+					// } else {
+					// 	this.editAddress(formData).then((data) => {
+					// 		this.closeLoaderDialog();
+					// 		if (data.ok) {
+					// 			this.openSnackbar({ text: "Sucessfully Edited Template" });
+					// 			this.getData();
+					// 			this.closeForm();
+					// 		} else {
+					// 			this.openSnackbar({ text: data.message });
+					// 		}
+					// 	});
+					// }
+				} else {
+					this.openSnackbar({ text: "Couldn't get template image upload url" });
+				}
+			});
 		},
 
 		getEditRowObject(data) {

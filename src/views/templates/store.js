@@ -123,6 +123,37 @@ export default {
 					};
 				});
 		},
+		getSignedUrlForTemplateImage: ({ commit, dispatch }, payload) => {
+			let fail = (msg) => commit("failure", msg);
+			return dispatch(
+				"apiCall",
+				{
+					method: "get",
+					params: payload,
+					url: apiEndpoints.GET_SIGNED_URL,
+				},
+				{ root: true }
+			)
+				.then((data) => {
+					if (data.ok) {
+						return {
+							ok: true,
+							uploadMetaData: data.uploadMetaData,
+						};
+					} else {
+						fail(data.message || "Failed to Get Signed Url");
+						return {
+							ok: false,
+							uploadMetaData: {},
+						};
+					}
+				})
+				.catch((err) => {
+					console.error("Err:", err);
+					fail(err.toString() || "Failed to Get Signed Url");
+					return { ok: false, uploadMetaData: {} };
+				});
+		},
 	},
 	getters: {},
 };
