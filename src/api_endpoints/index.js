@@ -10,4 +10,5 @@ export default {
 	USER_TEMPLATES: BASE_URL + "/user/v1.0/templates",
 	USER_DATASETS: BASE_URL + "/user/v1.0/datasets",
 	USER_SUBMIT_JOB: BASE_URL + "/user/v1.0/job/submit",
+	USER_JOBS: BASE_URL + "/user/v1.0/jobs",
 };

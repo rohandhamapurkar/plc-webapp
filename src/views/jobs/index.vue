@@ -2,7 +2,7 @@
 	<div class="jobsWrapper">
 		<div>
 			<v-list style="width: 100%">
-				<v-list-item @click="() => {}" v-for="jobItem in jobsList" :key="jobItem._id">
+				<v-list-item @click="openDialogModal(jobItem)" v-for="jobItem in jobsList" :key="jobItem._id">
 					<v-list-item-avatar>
 						<v-icon :class="'blue'" v-text="'mdi-clipboard-text'"></v-icon>
 					</v-list-item-avatar>
@@ -14,6 +14,9 @@
 							v-text="getFormattedDate(jobItem.record.createdOn, 'DD/MM/YYYY - hh:mm A UTC')"
 						></v-list-item-subtitle>
 					</v-list-item-content>
+					<v-list-item-action>
+						<v-icon color="grey lighten-1">mdi-information</v-icon>
+					</v-list-item-action>
 				</v-list-item>
 			</v-list>
 		</div>
@@ -31,7 +34,7 @@
 			</div>
 		</div>
 
-		<DialogModal @closeModal="dialogModal = false" :toggleModal="dialogModal" :modalName="dialogModalTitle">
+		<DialogModal @closeModal="closeDialogModal" :toggleModal="dialogModal" :modalName="dialogModalTitle">
 			<template v-slot:modalContent> </template>
 		</DialogModal>
 	</div>
@@ -56,14 +59,14 @@ export default {
 	data: () => ({
 		name: "Jobs",
 		placeholder: "Search Jobs",
-		selectedRowInfo: {},
+		selectedJobInfo: null,
 		dialogModal: false,
 		dialogModalTitle: "",
 		jobsList: [],
 	}),
 	computed: {},
 	methods: {
-		...mapActions("Jobs", ["getJobsList"]),
+		...mapActions("Jobs", ["getJobsList", "getJobDetails"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 		getData() {
 			this.openLoaderDialog();
@@ -79,9 +82,23 @@ export default {
 		},
 
 		openDialogModal(selectedEntry) {
-			this.dialogModal = true;
-			this.selectedCardInfo = selectedEntry;
-			this.dialogModalTitle = "Job id: " + selectedEntry.id;
+			this.dialogModalTitle = "Job id: " + selectedEntry._id;
+			this.openLoaderDialog();
+			this.getJobDetails({
+				_id: selectedEntry._id,
+			}).then((data) => {
+				if (data.ok) {
+					this.selectedJobInfo = data.jobDetails;
+				}
+				this.closeLoaderDialog();
+				this.dialogModal = true;
+			});
+		},
+
+		closeDialogModal() {
+			this.selectedJobInfo = null;
+			this.dialogModalTitle = "";
+			this.dialogModal = false;
 		},
 	},
 	watch: {},

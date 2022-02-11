@@ -6,7 +6,8 @@ import apiEndpoints from "@/api_endpoints";
 
 import Templates from "./views/templates/store";
 import Datasets from "./views/datasets/store";
-import Builder from "./views/datasets/builder";
+import Builder from "./views/builder/store";
+import Jobs from "./views/jobs/store";
 
 Vue.use(Vuex);
 const initialState = () => ({
@@ -72,6 +73,7 @@ export default new Vuex.Store({
 		Templates,
 		Datasets,
 		Builder,
+		Jobs,
 	},
 	state: initialState(),
 	mutations: {
