@@ -1,12 +1,10 @@
 <template>
 	<div>
-		<!-- <v-overlay :opacity="1" :value="loaderDialog" :z-index="100">
+		<v-overlay :opacity="1" :value="loaderDialog" :z-index="100">
 			<v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
-		</v-overlay> -->
-		<!-- <app @userHasLoggedOut="clearTimeoutAfterLogout" v-if="showApp"></app> -->
-		<app v-if="app"></app>
-		<auth v-else></auth>
-		<!-- <auth @startSession="startRefreshCycle" v-else></auth> -->
+		</v-overlay>
+		<app @userHasLoggedOut="clearTimeoutAfterLogout" v-if="showApp"></app>
+		<auth @startSession="startRefreshCycle" v-else></auth>
 	</div>
 </template>
 
@@ -81,13 +79,13 @@ export default {
 			if (localStorage.getItem("userType") == this.ADMIN) {
 				this.typeTenLogin({
 					token,
-					userData: userState.mortal,
+					userData: userState.user.userData,
 					dataObj: userState,
 				});
 			} else if (localStorage.getItem("userType") == this.USER) {
 				this.typeFourtyLogin({
 					token,
-					userData: userState.mortal,
+					userData: userState.user.userData,
 					dataObj: userState,
 				});
 			}

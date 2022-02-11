@@ -6,7 +6,7 @@ export default {
 	state: initialState(),
 	mutations: {
 		failure: (s, msg) => {
-			console.error("[failure] ", msg);
+			console.error("[failure] ", JSON.stringify(msg));
 		},
 		resetState(state) {
 			const initial = initialState();

@@ -127,6 +127,9 @@ export default new Vuex.Store({
 		loginFail: (s, p) => {
 			s.messages.loginFailed = p;
 		},
+		logoutFail: (s, p) => {
+			console.log("logged out");
+		},
 		resetState(state) {
 			const initial = initialState();
 			Object.keys(initial).forEach((key) => {
@@ -213,16 +216,16 @@ export default new Vuex.Store({
 				.then((response) => {
 					let data = response.data;
 					if (data.ok) {
-						if (data.mortal.type === state.ADMIN) {
+						if (data.user.type === state.ADMIN) {
 							commit("typeTenLogin", {
 								token: data.token,
-								userData: data.mortal,
+								userData: data.user.userData,
 								dataObj: currentState,
 							});
-						} else if (data.mortal.type === state.USER) {
+						} else if (data.user.type === state.USER) {
 							commit("typeFourtyLogin", {
 								token: data.token,
-								userData: data.mortal,
+								userData: data.user.userData,
 								dataObj: currentState,
 							});
 						}
@@ -240,33 +243,94 @@ export default new Vuex.Store({
 
 		login: ({ commit, state }, payload) => {
 			let fail = (msg) => commit("loginFail", msg);
-			if (!payload.username || !payload.password) {
-				fail("No username/pw provided");
+			if (!payload.email || !payload.password) {
+				fail("No email/pw provided");
 				return;
 			}
-			let { username, password } = payload;
+			let { email, password } = payload;
 			return axios
-				.post(apiEndpoints.LOGIN, { username, password })
+				.post(apiEndpoints.LOGIN, { email, password })
 				.then((response) => {
 					let data = response.data;
 					if (!data.ok) {
 						fail(data.message || "Login Failed");
 						return { ok: false };
-					} else if (data.mortal.type === state.ADMIN) {
+					} else if (data.user.type === state.ADMIN) {
 						commit("typeTenLogin", {
 							token: data.token,
-							userData: data.mortal,
+							userData: data.user.userData,
 							dataObj: data,
 						});
-					} else if (data.mortal.type === state.USER) {
+					} else if (data.user.type === state.USER) {
 						commit("typeFourtyLogin", {
 							token: data.token,
-							userData: data.mortal,
+							userData: data.user.userData,
 							dataObj: data,
 						});
 					} else {
 						/* logical error */
 						fail("Not valid usertype");
+						return { ok: false };
+					}
+					return { ok: true };
+				})
+				.catch((err) => {
+					console.log("[Error] login", err);
+					if (err.message == "Network Error") {
+						fail("Network Error");
+					} else {
+						fail("Login Failed");
+					}
+					return { ok: false };
+				});
+		},
+		logout: ({ commit, state }) => {
+			let fail = (msg) => commit("logoutFail", msg);
+			return axios
+				.post(
+					apiEndpoints.LOGOUT,
+					{},
+					{
+						headers: {
+							Authorization: state.authToken,
+						},
+					}
+				)
+				.then((response) => {
+					let data = response.data;
+					if (!data.ok) {
+						fail(data.message || "Logout Failed");
+						return { ok: false };
+					} else {
+						/* logical error */
+						fail("Not valid usertype");
+						return { ok: false };
+					}
+				})
+				.catch((err) => {
+					console.log("[Error] login", err);
+					if (err.message == "Network Error") {
+						fail("Network Error");
+					} else {
+						fail("Login Failed");
+					}
+					return { ok: false };
+				});
+		},
+		register: ({ commit, state }, payload) => {
+			let fail = (msg) => commit("loginFail", msg);
+			if (!payload.email || !payload.password) {
+				fail("No email/pw provided");
+				return;
+			}
+			let { email, password } = payload;
+			return axios
+				.post(apiEndpoints.REGISTER, { email, password })
+				.then((response) => {
+					let data = response.data;
+					console.log("data", data);
+					if (!data.ok) {
+						fail(data.message || "Registration Failed");
 						return { ok: false };
 					}
 					return { ok: true };

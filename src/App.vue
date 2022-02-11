@@ -55,12 +55,12 @@
 			</v-btn>
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on, attrs }">
-					<v-avatar class="toolbar-profile" size="40" v-bind="attrs" v-on="on">
-						{{ getProfileName() }}
+					<v-avatar class="toolbar-profile" size="45" v-bind="attrs" v-on="on">
+						<img src="https://source.boringavatars.com/beam/120/?colors=AAE6D9,E6B0AA" alt="John" />
 					</v-avatar>
 				</template>
 				<span v-if="userData"
-					>{{ userData.name ? userData.name : "" }} ({{ userData.username ? userData.username : "" }})</span
+					>{{ userData.name ? userData.name : "" }} ({{ userData.email ? userData.email : "" }})</span
 				>
 			</v-tooltip>
 		</v-app-bar>
@@ -152,15 +152,6 @@ export default {
 	methods: {
 		...mapActions(["logout"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog", "resetState", "openSnackbar", "closeSnackbar"]),
-		getProfileName() {
-			if (this.userData && this.userData.name) {
-				return this.userData.name
-					.split(" ")
-					.map((e) => e.split("")[0])
-					.join("");
-			}
-			return "";
-		},
 		setRouteItems() {
 			if (this.userType == this.ADMIN) {
 				let tempArray = [];
