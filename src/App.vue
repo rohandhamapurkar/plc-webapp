@@ -60,9 +60,7 @@
 					</v-avatar>
 				</template>
 				<span v-if="userData"
-					>{{ userData.usr_data ? userData.usr_data.name : "" }} ({{
-						userData.username ? userData.username : ""
-					}})</span
+					>{{ userData.name ? userData.name : "" }} ({{ userData.username ? userData.username : "" }})</span
 				>
 			</v-tooltip>
 		</v-app-bar>
@@ -155,8 +153,8 @@ export default {
 		...mapActions(["logout"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog", "resetState", "openSnackbar", "closeSnackbar"]),
 		getProfileName() {
-			if (this.userData.usr_data && this.userData.usr_data.name) {
-				return this.userData.usr_data.name
+			if (this.userData && this.userData.name) {
+				return this.userData.name
 					.split(" ")
 					.map((e) => e.split("")[0])
 					.join("");

@@ -389,7 +389,7 @@ export default {
 					this.$emit("formOutput", {
 						...this.formElements,
 						_id: this.formData._id,
-						updated_on: this.formData.updated_on,
+						updatedOn: this.formData.updatedOn,
 					});
 				}
 				return true;
@@ -474,22 +474,6 @@ export default {
 							this.$set(this.formElements, i.key, [{ input: "" }]);
 						}
 					} else if (i.type == "MultiInputWithGroupKey") {
-						// formData object -> {
-						// 	_id: "5f857a9ad8a96c2e4ca6e7c5",
-						// 	name: "Allied T Pro Inc.",
-						// 	proprietor_info: "Sanya Hamilton",
-						// 	business_types: ["FIT", "GIT", "MICE", "ADHOC", "LUXURY"],
-						// 	countries: ["United States", "Canada"],
-						// 	emergency_contacts: [{ country: "United States", contacts: ["+1 310 663 9484"] }],
-						// 	logo: "base64 String here",
-						// 	record: {
-						// 		created_on: "2020-10-13T09:59:54.919Z",
-						// 		updated_on: "2020-10-29T07:44:40.388Z",
-						// 		active: true,
-						// 	},
-						// 	email_ids: ["sanya.hamilton@atptravel.com"],
-						// 	updated_on: "2020-10-29T07:44:40.388Z",
-						// };
 						if (this.formData[i.key]) {
 							let tempObj = this.formData[i.key].map((e) => ({
 								groupKey: e[i.keyforGrouped],

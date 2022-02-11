@@ -208,7 +208,7 @@ export default new Vuex.Store({
 			let fail = (msg) => commit("loginFail", msg);
 			return axios
 				.get(apiEndpoints.EXTEND_USER_SESSION, {
-					headers: { refresh_token: refreshToken },
+					headers: { refreshToken },
 				})
 				.then((response) => {
 					let data = response.data;

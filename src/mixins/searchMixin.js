@@ -17,11 +17,11 @@ const searchMixins = {
 		// pageSizeList: [2, 4, 6, 8, 10],
 		pageSizeList: [20, 40, 60, 80, 100],
 		filter: {},
-		search_text: "",
+		searchText: "",
 	}),
 	computed: {
 		// This computed function divides the fetchcount with the pagesize to determine if pagination needs to be displayed or not.
-		isPaginationRequired: function() {
+		isPaginationRequired: function () {
 			return !(this.fetchCount / this.pageSize <= 1);
 		},
 	},
@@ -56,13 +56,13 @@ const searchMixins = {
 			this.getData();
 		},
 		queryString(data) {
-			this.filter["search_text"] = data;
+			this.filter["searchText"] = data;
 			this.pageNo = 1;
 			this.getData();
 		},
 	},
 	watch: {
-		pageSize: function(nv, ov) {
+		pageSize: function (nv, ov) {
 			if (nv != ov) {
 				this.pageNo = 1;
 				this.getData();

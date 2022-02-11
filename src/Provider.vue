@@ -4,7 +4,8 @@
 			<v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
 		</v-overlay> -->
 		<!-- <app @userHasLoggedOut="clearTimeoutAfterLogout" v-if="showApp"></app> -->
-		<app></app>
+		<app v-if="app"></app>
+		<auth v-else></auth>
 		<!-- <auth @startSession="startRefreshCycle" v-else></auth> -->
 	</div>
 </template>
@@ -37,6 +38,7 @@ export default {
 		expiryBuffer: 60 * 1000,
 		refreshTokenTimeoutRef: 0,
 		loaderDialog: true,
+		app: true,
 	}),
 	methods: {
 		...mapActions(["extendUserSession"]),

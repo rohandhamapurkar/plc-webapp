@@ -157,7 +157,7 @@ export default {
 			this.isLoading = true;
 
 			this.getDatasetsList({
-				filter: { search_text: val },
+				filter: { searchText: val },
 				pageSize: 10,
 				pageNo: 1,
 			}).then((data) => {

@@ -128,7 +128,7 @@ export default {
 				formData.append(k, extraData[k]);
 			});
 			formData.append(this.formDataName, file);
-			if (this.process_id) formData.append("process_id", this.process_id);
+			if (this.processId) formData.append("processId", this.processId);
 			return formData;
 		},
 		downloadSampleFile() {
@@ -160,7 +160,7 @@ export default {
 		uploadFunction: { required: true, type: Function },
 		downloadSampleFunc: { required: false, type: Function },
 		showDownloadSampleButton: { required: true, type: Boolean },
-		process_id: { required: false, type: String },
+		processId: { required: false, type: String },
 		formDataName: { required: false, type: String, default: "travelAgents" },
 		extraFormFields: { required: false, type: Array, default: () => [] },
 	},
