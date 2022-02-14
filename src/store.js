@@ -166,6 +166,29 @@ export default new Vuex.Store({
 					});
 			});
 		},
+		apiCallWithoutAuth({ commit, state }, { partConfig, headerConfig }) {
+			return new Promise((resolve, reject) => {
+				axios({
+					...partConfig,
+					headers: {
+						...headerConfig,
+					},
+					onUploadProgress: function (progressEvent) {
+						commit("setUploadPercentage", {
+							uploadStatus: parseInt(Math.round((progressEvent.loaded / progressEvent.total) * 100)),
+						});
+					},
+				})
+					.then((response) => {
+						resolve(response);
+						commit("clearUploadPercentage");
+					})
+					.catch((err) => {
+						commit("clearUploadPercentage");
+						apiErrorFunction({ err, commit, reject });
+					});
+			});
+		},
 		apiCall({ commit, state }, partConfig) {
 			return new Promise((resolve, reject) => {
 				if (!state.auth) {
@@ -350,7 +373,7 @@ export default new Vuex.Store({
 			let { uploadUrl, formData } = payload;
 			delete payload.uploadUrl;
 			return dispatch(
-				"apiCallWithHeaderConfig",
+				"apiCallWithoutAuth",
 				{
 					partConfig: {
 						method: "post",
@@ -358,17 +381,21 @@ export default new Vuex.Store({
 						url: uploadUrl,
 					},
 					headerConfig: {
-						"Content-Type": "application/x-www-form-urlencoded",
+						"Content-Type": "multipart/form-data",
 					},
 				},
 				{ root: true }
 			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to upload affiliates file");
-					return data;
+				.then((response) => {
+					if (response.status == 204) {
+						return { ok: true };
+					} else {
+						fail("Failed to upload image file");
+						return { ok: false };
+					}
 				})
 				.catch((err) => {
-					fail(err.toString() || "Failed to upload affiliates file");
+					fail(err.toString() || "Failed to upload image file");
 					return {
 						ok: false,
 						message: err.message,
