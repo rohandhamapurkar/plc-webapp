@@ -51,6 +51,15 @@ let URLtoFile = (url, fileName, contentType) => {
 		});
 };
 
+let getImageObjFromURL = (dataURL) =>
+	new Promise((resolve) => {
+		const img = new Image();
+		img.onload = () => {
+			resolve(img);
+		};
+		img.src = dataURL;
+	});
+
 let toBase64 = (file) =>
 	new Promise((resolve, reject) => {
 		const reader = new FileReader();
@@ -91,4 +100,5 @@ export default {
 	toBase64,
 	URLtoFile,
 	dataURLtoFile,
+	getImageObjFromURL,
 };

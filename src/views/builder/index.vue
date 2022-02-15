@@ -97,6 +97,7 @@ import DialogModal from "@/components/DialogModal.vue";
 import searchMixin from "@/mixins/searchMixin";
 import helperMixin from "@/mixins/helperMixins";
 import { eventBus } from "@/event-bus";
+import helpers from "@/helpers";
 import { mapActions, mapMutations } from "vuex";
 
 export default {
@@ -263,12 +264,19 @@ export default {
 		},
 
 		setSelectedRenderObject(templateItem) {
-			this.selectedRender = {};
-			this.selectedRender = {
-				imageUrl: templateItem.templateImageURL,
-				dimension: templateItem.imageDimensions,
-				template: templateItem,
-			};
+			helpers
+				.getImageObjFromURL(templateItem.imageUrl)
+				.then((imageObj) => {
+					console.log(imageObj);
+					this.selectedRender = {
+						imageUrl: templateItem.imageUrl,
+						dimension: { width: imageObj.width, height: imageObj.height },
+						template: templateItem,
+					};
+				})
+				.catch((e) => {
+					this.openSnackbar({ text: "Couldn't load image" });
+				});
 		},
 	},
 };
