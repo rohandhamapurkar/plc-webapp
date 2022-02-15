@@ -130,7 +130,7 @@ export default {
 				{
 					method: "get",
 					params: payload,
-					url: apiEndpoints.GET_SIGNED_URL,
+					url: apiEndpoints.USER_TEMPLATE_GET_UPLOAD_URL,
 				},
 				{ root: true }
 			)

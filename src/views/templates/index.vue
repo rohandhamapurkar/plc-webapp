@@ -124,7 +124,7 @@ export default {
 				key: "imageUrl",
 				width: "half",
 				acceptRules: "image/png, image/jpeg",
-				rules: [(value) => !value || value.size <= 15000000 || "Template image should be less than or equal to 15 MB!"],
+				rules: [(value) => !value || value.size <= 10000000 || "Template image should be less than or equal to 10 MB!"],
 			},
 		],
 		templatesList: [],
@@ -168,9 +168,7 @@ export default {
 			this.openLoaderDialog();
 			this.getSignedUrlForTemplateImage({
 				fileName: imageFile.name,
-				fileType: "template",
-				fileSize: imageFile.size,
-				fileExt: imageFile.type.split("/")[1],
+				mimeType: imageFile.type,
 			}).then((respData0) => {
 				if (respData0.ok) {
 					let formData = new FormData();
