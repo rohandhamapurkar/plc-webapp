@@ -56,7 +56,7 @@
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on, attrs }">
 					<v-avatar class="toolbar-profile" size="45" v-bind="attrs" v-on="on">
-						<img src="https://source.boringavatars.com/beam/120/?colors=AAE6D9,E6B0AA" alt="John" />
+						<img src="https://source.boringavatars.com/beam/120/?colors=FFFFFF,000000" alt="John" />
 					</v-avatar>
 				</template>
 				<span v-if="userData"
