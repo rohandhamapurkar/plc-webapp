@@ -51,7 +51,7 @@
 
 		<DialogModal @closeModal="dialogModal = false" :toggleModal="dialogModal" :modalName="dialogModalTitle">
 			<template v-slot:modalContent>
-				<v-img :src="selectedCardInfo.templateImageURL" height="600px" alt="" contain />
+				<v-img :src="selectedCardInfo.imageUrl" height="600px" alt="" contain />
 			</template>
 		</DialogModal>
 
@@ -121,7 +121,7 @@ export default {
 			{
 				name: "Template Image",
 				type: "FilePicker",
-				key: "templateImageURL",
+				key: "imageUrl",
 				width: "half",
 				acceptRules: "image/png, image/jpeg",
 				rules: [(value) => !value || value.size <= 15000000 || "Template image should be less than or equal to 15 MB!"],
@@ -161,15 +161,16 @@ export default {
 		},
 
 		async formOutput(data) {
-			var imageFile = data.templateImageURL;
+			var imageFile = data.imageUrl;
 			var inputFormData = JSON.parse(JSON.stringify(data));
 
 			console.log(imageFile);
+			this.openLoaderDialog();
 			this.getSignedUrlForTemplateImage({
 				fileName: imageFile.name,
 				fileType: "template",
 				fileSize: imageFile.size,
-				fileExt: imageFile.extension,
+				fileExt: imageFile.type.split("/")[1],
 			}).then((respData0) => {
 				if (respData0.ok) {
 					let formData = new FormData();
@@ -182,37 +183,38 @@ export default {
 						formData,
 					}).then((respData1) => {
 						if (respData1.ok) {
-							inputFormData.imageUrl = respData0.publicUrl;
-							console.log(inputFormData);
-							// this.openLoaderDialog();
-							// if (!Dthis.isEditMode) {
-							// 	this.addAddress(inputFormData).then((data) => {
-							// 		this.closeLoaderDialog();
-							// 		if (data.ok) {
-							// 			this.openSnackbar({ text: "Sucessfully Added Template" });
-							// 			this.getData();
-							// 			this.closeForm();
-							// 		} else {
-							// 			this.openSnackbar({ text: data.message });
-							// 		}
-							// 	});
-							// } else {
-							// 	this.editAddress(inputFormData).then((data) => {
-							// 		this.closeLoaderDialog();
-							// 		if (data.ok) {
-							// 			this.openSnackbar({ text: "Sucessfully Edited Template" });
-							// 			this.getData();
-							// 			this.closeForm();
-							// 		} else {
-							// 			this.openSnackbar({ text: data.message });
-							// 		}
-							// 	});
-							// }
+							inputFormData.imageUrl = respData0.uploadMetaData.s3FileLink;
+
+							if (!this.isEditMode) {
+								this.addTemplate(inputFormData).then((data) => {
+									this.closeLoaderDialog();
+									if (data.ok) {
+										this.openSnackbar({ text: "Sucessfully Added Template" });
+										this.getData();
+										this.closeForm();
+									} else {
+										this.openSnackbar({ text: data.message });
+									}
+								});
+							} else {
+								this.editTemplate(inputFormData).then((data) => {
+									this.closeLoaderDialog();
+									if (data.ok) {
+										this.openSnackbar({ text: "Sucessfully Edited Template" });
+										this.getData();
+										this.closeForm();
+									} else {
+										this.openSnackbar({ text: data.message });
+									}
+								});
+							}
 						} else {
+							this.closeLoaderDialog();
 							this.openSnackbar({ text: "Couldn't upload image" });
 						}
 					});
 				} else {
+					this.closeLoaderDialog();
 					this.openSnackbar({ text: "Couldn't get template image upload url" });
 				}
 			});
