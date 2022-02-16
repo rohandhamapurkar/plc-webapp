@@ -23,7 +23,7 @@ export default {
 				{
 					method: "get",
 					params: payload,
-					url: apiEndpoints.USER_DATASETS,
+					url: apiEndpoints.GET_USER_DATASETS,
 				},
 				{ root: true }
 			)
@@ -110,7 +110,7 @@ export default {
 				"apiCall",
 				{
 					method: "get",
-					url: apiEndpoints.USER_DATASETS + "/" + payload._id,
+					url: apiEndpoints.GET_DATASET_DATA + "/" + payload._id,
 				},
 				{ root: true }
 			)
