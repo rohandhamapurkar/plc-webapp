@@ -20,6 +20,7 @@
 							:items="datasetsList"
 							:loading="isLoading"
 							:search-input.sync="search"
+							:disabled="disableDatasetSelection"
 							color="black"
 							hide-no-data
 							item-text="name"
@@ -129,6 +130,7 @@ export default {
 		datasetsList: [],
 		isLoading: false,
 
+		disableDatasetSelection: false,
 		selectedDatasetDetails: null,
 		selectedDatasetField: null,
 
@@ -195,19 +197,20 @@ export default {
 			this.selectedRender = false;
 			this.selectedDatasetDetails = null;
 			this.selectedDatasetField = null;
+			this.disableDatasetSelection = false;
 		},
 
 		onSubmitForProcessing(finalCanvasReferenceObject) {
 			let fCO = JSON.parse(JSON.stringify(finalCanvasReferenceObject));
 			let payload = {
 				templateId: fCO.template._id,
-				config: fCO.additionalBrandObjects.textObjects
+				dataConfig: fCO.additionalBrandObjects.textObjects
 					.map((elem) => {
 						if (elem.id.indexOf("dataDriven_") > -1) {
 							let idParts = elem.id.split("_");
 							let textParts = elem.text.split(".");
 							return {
-								type: "from_dataset",
+								type: "fromDataset",
 								datasetId: idParts[1],
 								dataField: textParts[1],
 								position: elem.position,
@@ -215,7 +218,7 @@ export default {
 							};
 						} else {
 							return {
-								type: "static",
+								type: "staticText",
 								text: elem.text,
 								position: elem.position,
 								style: elem.style,
@@ -234,6 +237,7 @@ export default {
 					),
 			};
 
+			console.log(payload);
 			this.resetState();
 			this.openLoaderDialog();
 			this.submitJob(payload).then((data) => {
@@ -247,7 +251,7 @@ export default {
 		},
 
 		clearDatasetSelection() {
-			this.selectedDatasetDetails = null;
+			// this.selectedDatasetDetails = null;
 			this.selectedDatasetField = null;
 		},
 		closeDatasetSelectionModal() {
@@ -255,6 +259,7 @@ export default {
 			this.clearDatasetSelection();
 		},
 		submitSelectedDataset() {
+			this.disableDatasetSelection = true;
 			eventBus.$emit("dataset-selection", {
 				datasetId: this.selectedDatasetDetails._id,
 				datasetName: this.selectedDatasetDetails.name,
@@ -264,6 +269,7 @@ export default {
 		},
 
 		setSelectedRenderObject(templateItem) {
+			this.disableDatasetSelection = false;
 			helpers
 				.getImageObjFromURL(templateItem.imageUrl)
 				.then((imageObj) => {

@@ -13,6 +13,6 @@ export default {
 	USER_DATASETS: BASE_URL + "/Datasets/v1.0/",
 	GET_USER_DATASETS: BASE_URL + "/Datasets/v1.0/datasets-list",
 	GET_DATASET_DATA: BASE_URL + "/Datasets/v1.0/dataset",
-	USER_SUBMIT_JOB: BASE_URL + "/users/v1.0/job/submit",
-	USER_JOBS: BASE_URL + "/users/v1.0/jobs",
+	USER_SUBMIT_JOB: BASE_URL + "/Jobs/v1.0/",
+	USER_JOBS: BASE_URL + "/Jobs/v1.0/jobs-list",
 };
