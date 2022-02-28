@@ -118,21 +118,20 @@ export default {
 					if (data.ok) {
 						return {
 							ok: true,
-							rows: data.rows,
+							rows: data.data,
 						};
 					} else {
 						fail(data.message || "Failed to Load Dataset Data");
 						return {
 							ok: false,
 							rows: [],
-							headers: [],
 						};
 					}
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to Load Datasets Data");
-					return { ok: false, rows: [], headers: [] };
+					return { ok: false, rows: [] };
 				});
 		},
 	},
