@@ -1,10 +1,11 @@
 const isBuildVersion = process.env.NODE_ENV === "production";
 
-const BASE_URL = isBuildVersion ? window.location.origin : "http://localhost:1401";
+const BASE_URL = isBuildVersion ? window.location.origin : "http://localhost:3000";
 
 export default {
 	LOGIN: BASE_URL + "/common/v1.0/login",
 	REGISTER: BASE_URL + "/users/v1.0/register",
+	VERIFY_OTP: BASE_URL + "/users/v1.0/verify",
 	LOGOUT: BASE_URL + "/common/v1.0/logout",
 	EXTEND_USER_SESSION: BASE_URL + "Session/v0.1/extend-session",
 

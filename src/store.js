@@ -354,7 +354,7 @@ export default new Vuex.Store({
 					console.log("data", data);
 					if (!data.ok) {
 						fail(data.message || "Registration Failed");
-						return { ok: false };
+						return { ok: false, message: data.message || "Registration Failed" };
 					}
 					return { ok: true };
 				})
@@ -363,9 +363,37 @@ export default new Vuex.Store({
 					if (err.message == "Network Error") {
 						fail("Network Error");
 					} else {
-						fail("Login Failed");
+						fail("Registration Failed");
 					}
-					return { ok: false };
+					return { ok: false, message: err.response.data.message || "Registration Failed" };
+				});
+		},
+		verifyOtp: ({ commit, state }, payload) => {
+			let fail = (msg) => commit("loginFail", msg);
+			if (!payload.email || !payload.otp) {
+				fail("No email/otp provided");
+				return;
+			}
+			let { email, otp } = payload;
+			return axios
+				.post(apiEndpoints.VERIFY_OTP, { email, otp })
+				.then((response) => {
+					let data = response.data;
+					console.log("data", data);
+					if (!data.ok) {
+						fail(data.message || "Verification Failed");
+						return { ok: false, message: data.message || "Verification Failed" };
+					}
+					return { ok: true };
+				})
+				.catch((err) => {
+					console.log("[Error] login", err);
+					if (err.message == "Network Error") {
+						fail("Network Error");
+					} else {
+						fail("Verification Failed");
+					}
+					return { ok: false, message: err.response.data.message || "Verification Failed" };
 				});
 		},
 		uploadImageToSignedUrl: ({ commit, dispatch }, payload) => {
