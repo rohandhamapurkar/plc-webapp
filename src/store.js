@@ -396,34 +396,30 @@ export default new Vuex.Store({
 					return { ok: false, message: err.response.data.message || "Verification Failed" };
 				});
 		},
-		uploadImageToSignedUrl: ({ commit, dispatch }, payload) => {
+		uploadImageToGDrive: async ({ commit, dispatch }, payload) => {
 			let fail = (msg) => commit("failure", msg);
-			let { uploadUrl, formData } = payload;
-			delete payload.uploadUrl;
 			return dispatch(
-				"apiCallWithoutAuth",
+				"apiCallWithHeaderConfig",
 				{
 					partConfig: {
 						method: "post",
-						data: formData,
-						url: uploadUrl,
+						data: payload.file,
+						url: apiEndpoints.UPLOAD_USER_TEMPLATE_IMAGE,
+						params: payload.params,
 					},
 					headerConfig: {
-						"Content-Type": "multipart/form-data",
+						"Content-Type": "application/octet-stream",
 					},
 				},
 				{ root: true }
 			)
-				.then((response) => {
-					if (response.status == 204) {
-						return { ok: true };
-					} else {
-						fail("Failed to upload image file");
-						return { ok: false };
-					}
+				.then((data) => {
+					if (!data.ok) fail(data.message || "Failed to upload template image");
+					return data;
 				})
 				.catch((err) => {
-					fail(err.toString() || "Failed to upload image file");
+					console.error("Err:", err);
+					fail(err.toString() || "Failed to upload template image");
 					return {
 						ok: false,
 						message: err.message,

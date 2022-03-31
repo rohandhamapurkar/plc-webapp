@@ -10,7 +10,7 @@ export default {
 	EXTEND_USER_SESSION: BASE_URL + "Session/v0.1/extend-session",
 
 	USER_TEMPLATES: BASE_URL + "/Templates/v1.0/",
-	GET_USER_TEMPLATE_UPLOAD_URL: BASE_URL + "/Templates/v1.0/template-image",
+	UPLOAD_USER_TEMPLATE_IMAGE: BASE_URL + "/Templates/v1.0/template-image",
 	USER_DATASETS: BASE_URL + "/Datasets/v1.0/",
 	GET_USER_DATASETS: BASE_URL + "/Datasets/v1.0/datasets-list",
 	GET_DATASET_DATA: BASE_URL + "/Datasets/v1.0/dataset",

@@ -123,7 +123,7 @@ export default {
 				type: "FilePicker",
 				key: "imageUrl",
 				width: "half",
-				acceptRules: "image/png, image/jpeg",
+				acceptRules: "image/png, image/jpeg, image/jpg",
 				rules: [(value) => !value || value.size <= 10000000 || "Template image should be less than or equal to 10 MB!"],
 			},
 		],
@@ -138,8 +138,8 @@ export default {
 			"deleteTemplate",
 			"getSignedUrlForTemplateImage",
 		]),
-		...mapActions(["uploadImageToSignedUrl"]),
-		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
+		...mapActions(["uploadImageToGDrive"]),
+		...mapMutations(["openLoaderDialog", "closeLoaderDialog", "openSnackbar"]),
 		getData() {
 			this.openLoaderDialog();
 			this.getTemplatesList({
@@ -164,58 +164,52 @@ export default {
 			var imageFile = data.imageUrl;
 			var inputFormData = JSON.parse(JSON.stringify(data));
 
-			console.log(imageFile);
 			this.openLoaderDialog();
-			this.getSignedUrlForTemplateImage({
-				fileName: imageFile.name,
-				mimeType: imageFile.type,
-			}).then((respData0) => {
-				if (respData0.ok) {
-					let formData = new FormData();
-					for (let key in respData0.uploadMetaData.fields) {
-						formData.append(key, respData0.uploadMetaData.fields[key]);
-					}
-					formData.append("file", imageFile);
-					this.uploadImageToSignedUrl({
-						uploadUrl: respData0.uploadMetaData.url,
-						formData,
-					}).then((respData1) => {
-						if (respData1.ok) {
-							inputFormData.imageUrl = respData0.uploadMetaData.s3FileLink;
-
-							if (!this.isEditMode) {
-								this.addTemplate(inputFormData).then((data) => {
-									this.closeLoaderDialog();
-									if (data.ok) {
-										this.openSnackbar({ text: "Sucessfully Added Template" });
-										this.getData();
-										this.closeForm();
-									} else {
-										this.openSnackbar({ text: data.message });
-									}
-								});
-							} else {
-								this.editTemplate(inputFormData).then((data) => {
-									this.closeLoaderDialog();
-									if (data.ok) {
-										this.openSnackbar({ text: "Sucessfully Edited Template" });
-										this.getData();
-										this.closeForm();
-									} else {
-										this.openSnackbar({ text: data.message });
-									}
-								});
-							}
-						} else {
-							this.closeLoaderDialog();
-							this.openSnackbar({ text: "Couldn't upload image" });
-						}
-					});
-				} else {
-					this.closeLoaderDialog();
-					this.openSnackbar({ text: "Couldn't get template image upload url" });
-				}
+			if (imageFile.size == 0) {
+				delete inputFormData.imageUrl;
+				return this.editOrCreate(inputFormData);
+			}
+			let respData1 = await this.uploadImageToGDrive({
+				params: {
+					mimeType: imageFile.type,
+					filename: imageFile.name,
+				},
+				file: imageFile,
 			});
+			if (respData1.ok) {
+				inputFormData.imageUrl = respData1.publicLink;
+				await this.editOrCreate(inputFormData);
+			} else {
+				this.closeLoaderDialog();
+				this.openSnackbar({ text: "Couldn't upload image" });
+			}
+			this.closeLoaderDialog();
+		},
+
+		async editOrCreate(inputFormData) {
+			if (!this.isEditMode) {
+				let data = await this.addTemplate(inputFormData);
+				console.log("here", data);
+				this.closeLoaderDialog();
+				if (data.ok) {
+					console.log("here");
+					this.openSnackbar({ text: "Sucessfully Added Template" });
+					this.getData();
+					this.closeForm();
+				} else {
+					this.openSnackbar({ text: data.message });
+				}
+			} else {
+				let data = await this.editTemplate(inputFormData);
+				this.closeLoaderDialog();
+				if (data.ok) {
+					this.openSnackbar({ text: "Sucessfully Edited Template" });
+					this.getData();
+					this.closeForm();
+				} else {
+					this.openSnackbar({ text: data.message });
+				}
+			}
 		},
 
 		getEditRowObject(data) {
