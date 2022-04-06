@@ -23,7 +23,7 @@ export default {
 				{
 					method: "post",
 					data: payload,
-					url: apiEndpoints.USER_SUBMIT_JOB,
+					url: apiEndpoints.USER_JOB,
 				},
 				{ root: true }
 			)

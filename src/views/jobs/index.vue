@@ -35,7 +35,70 @@
 		</div>
 
 		<DialogModal @closeModal="closeDialogModal" :toggleModal="dialogModal" :modalName="dialogModalTitle">
-			<template v-slot:modalContent> </template>
+			<template v-if="selectedJobInfo" v-slot:modalContent>
+				<v-card class="mx-auto" max-width="600">
+					<v-card-title class="blue-grey white--text">
+						<span class="text-h6">Job Output</span>
+						<v-spacer></v-spacer>
+					</v-card-title>
+					<v-card-text class="py-0">
+						<span
+							v-if="
+								selectedJobInfo.changelog[0].status === 'SUCCESS' &&
+								selectedJobInfo.jobInfo.hasOwnProperty('outputFile')
+							"
+							class="text-h6"
+						>
+							Job Completed Download output here
+							<v-spacer></v-spacer>
+							<v-btn @click="downloadOutputFile(selectedJobInfo.jobInfo.outputFile)"> Download </v-btn>
+						</span>
+						<span
+							class="text-h6"
+							v-else-if="
+								selectedJobInfo.changelog[0].status === 'SUCCESS' &&
+								!selectedJobInfo.jobInfo.hasOwnProperty('outputFile')
+							"
+							>Job Completed Output zip file not available</span
+						>
+						<span class="text-h6" v-else-if="selectedJobInfo.changelog[0].status === 'ERROR'"
+							>Job encountered an error</span
+						>
+						<span
+							class="text-h6"
+							v-else-if="
+								selectedJobInfo.changelog[0].status !== 'ERROR' && selectedJobInfo.changelog[0].status !== 'SUCCESS'
+							"
+							>Current Job Status: {{ selectedJobInfo.changelog[0].status }}</span
+						>
+					</v-card-text>
+				</v-card>
+				<v-card class="mx-auto" max-width="600">
+					<v-card-title class="blue-grey white--text">
+						<span class="text-h6">Job Logs</span>
+						<v-spacer></v-spacer>
+					</v-card-title>
+					<v-card-text class="py-0">
+						<v-timeline dense>
+							<v-slide-x-reverse-transition group hide-on-leave>
+								<v-timeline-item
+									v-for="item in selectedJobInfo.changelog"
+									:key="item.id"
+									:color="item.color"
+									small
+									fill-dot
+								>
+									<v-alert :value="true" :color="item.color" :icon="item.icon" class="white--text">
+										{{ item.text }}
+										<v-spacer></v-spacer>
+										{{ item.date }}
+									</v-alert>
+								</v-timeline-item>
+							</v-slide-x-reverse-transition>
+						</v-timeline>
+					</v-card-text>
+				</v-card>
+			</template>
 		</DialogModal>
 	</div>
 </template>
@@ -47,6 +110,15 @@ import searchMixin from "@/mixins/searchMixin";
 import DialogModal from "@/components/DialogModal.vue";
 import { mapActions, mapMutations } from "vuex";
 
+const statusHashMap = {
+	ARCHIVING_FILES: { icon: "mdi-information", color: "info", text: "Archiving Files" },
+	DELETING_TEMP_FILES: { icon: "mdi-information", color: "info", text: "Clearing temporary files" },
+	ERROR: { icon: "mdi-alert-circle", color: "error", text: "Process Errored" },
+	IN_QUEUE: { icon: "mdi-information", color: "info", text: "Job In Queue" },
+	PROCESSING_FILES: { icon: "mdi-information", color: "info", text: "Processing Job" },
+	PUSHED_TO_QUEUE: { icon: "mdi-alert", color: "warning", text: "Pushed Job to Queue" },
+	SUCCESS: { icon: "mdi-check-circle'", color: "success", text: "Job completed successfully" },
+};
 export default {
 	name: "Jobs",
 	mixins: [defaultCRUDMixin, searchMixin, helperMixin],
@@ -62,6 +134,7 @@ export default {
 		selectedJobInfo: null,
 		dialogModal: false,
 		dialogModalTitle: "",
+
 		jobsList: [],
 	}),
 	computed: {},
@@ -88,11 +161,41 @@ export default {
 				_id: selectedEntry._id,
 			}).then((data) => {
 				if (data.ok) {
-					this.selectedJobInfo = data.jobDetails;
+					this.selectedJobInfo = {
+						jobInfo: selectedEntry,
+						changelog: data.jobDetails.map((e, index) => {
+							if (statusHashMap[e.status])
+								return {
+									id: index,
+									status: e.status,
+									...statusHashMap[e.status],
+									date: this.getFormattedDate(e.record.createdOn, "DD/MM/YYYY - hh:mm:ss A UTC"),
+								};
+							else
+								return {
+									id: index,
+									status: e.status,
+									icon: "mdi-information",
+									color: "info",
+									text: e.status,
+									date: this.getFormattedDate(e.record.createdOn, "DD/MM/YYYY - hh:mm:ss A UTC"),
+								};
+						}),
+					};
+					console.log(this.selectedJobInfo);
 				}
 				this.closeLoaderDialog();
 				this.dialogModal = true;
 			});
+		},
+
+		downloadOutputFile(url) {
+			var link = document.createElement("a");
+			link.setAttribute("download", "");
+			link.href = url;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
 		},
 
 		closeDialogModal() {

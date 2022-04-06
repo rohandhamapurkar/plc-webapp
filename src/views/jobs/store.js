@@ -23,7 +23,7 @@ export default {
 				{
 					method: "get",
 					params: payload,
-					url: apiEndpoints.USER_JOBS,
+					url: apiEndpoints.USER_JOBS_LIST,
 				},
 				{ root: true }
 			)
@@ -57,7 +57,7 @@ export default {
 				"apiCall",
 				{
 					method: "get",
-					url: apiEndpoints.USER_JOBS + "/" + payload._id,
+					url: apiEndpoints.USER_JOB + payload._id,
 				},
 				{ root: true }
 			)
