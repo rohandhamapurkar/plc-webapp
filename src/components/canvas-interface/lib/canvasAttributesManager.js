@@ -111,7 +111,7 @@ const canvasAttributesManager = {
 	applyFilterToCanvasBackground(src, filterObject, filterIndex = 0) {
 		const canvasObject = this.canvasObject;
 		fabric.Image.fromURL(
-			src,
+			src + "?time=" + new Date().getTime(),
 			function (image) {
 				if (canvasObject.backgroundImage) {
 					image.filters.push(...canvasObject.backgroundImage.filters);
