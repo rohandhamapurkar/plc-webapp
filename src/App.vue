@@ -59,9 +59,7 @@
 						<img src="https://source.boringavatars.com/beam/120/?colors=FFFFFF,000000" alt="John" />
 					</v-avatar>
 				</template>
-				<span v-if="userData"
-					>{{ userData.name ? userData.name : "" }} ({{ userData.email ? userData.email : "" }})</span
-				>
+				<span>({{ $auth.user.email }})</span>
 			</v-tooltip>
 		</v-app-bar>
 
@@ -162,6 +160,9 @@ export default {
 			this.navigationToggle = !this.navigationToggle;
 		},
 		async logoutUser() {
+			this.$auth.logout({
+				returnTo: window.location.origin,
+			});
 			console.log("User Logged Out");
 			this.openSnackbar({ text: "You are being logged out" });
 			this.openLoaderDialog();

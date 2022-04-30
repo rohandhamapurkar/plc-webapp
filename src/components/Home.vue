@@ -12,7 +12,9 @@
 export default {
 	components: {},
 	data: () => ({}),
-	created() {},
+	created() {
+		console.log(this.$auth);
+	},
 	methods: {},
 	computed: {},
 	mounted() {},
