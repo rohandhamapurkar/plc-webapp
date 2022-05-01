@@ -9,26 +9,21 @@ import Datasets from "./views/datasets/store";
 import Builder from "./views/builder/store";
 import Jobs from "./views/jobs/store";
 
+import { getInstance } from "./auth/index";
+const auth0Instance = getInstance();
+
 Vue.use(Vuex);
 const initialState = () => ({
 	loaderDialog: false,
 	snackbarState: false,
 	snackbarText: "",
 	snackbarTime: 2000,
-	// userType: false,
-	userType: 10,
-	authToken: "",
-	refreshToken: "",
 	currentState: {},
-	auth: false,
-	userData: {},
 	messages: {
 		loginFailed: "",
 		failure: "",
 	},
 	uploadPercentage: 0,
-	USER: 40,
-	ADMIN: 10,
 });
 
 let apiErrorFunction = ({ err, commit, reject }) => {
@@ -117,28 +112,35 @@ export default new Vuex.Store({
 	actions: {
 		apiCallWithHeaderConfig({ commit, state }, { partConfig, headerConfig }) {
 			return new Promise((resolve, reject) => {
-				if (!state.auth) {
-					throw "no auth token found";
-				}
-				axios({
-					...partConfig,
-					headers: {
-						...headerConfig,
-						Authorization: state.authToken,
-					},
-					onUploadProgress: function (progressEvent) {
-						commit("setUploadPercentage", {
-							uploadStatus: parseInt(Math.round((progressEvent.loaded / progressEvent.total) * 100)),
-						});
-					},
-				})
-					.then((response) => {
-						let data = response.data;
-						resolve(data);
-						commit("clearUploadPercentage");
+				auth0Instance
+					.getTokenSilently()
+					.then((token) => {
+						if (!token) {
+							throw "no auth token found";
+						}
+						axios({
+							...partConfig,
+							headers: {
+								...headerConfig,
+								Authorization: "Bearer " + token,
+							},
+							onUploadProgress: function (progressEvent) {
+								commit("setUploadPercentage", {
+									uploadStatus: parseInt(Math.round((progressEvent.loaded / progressEvent.total) * 100)),
+								});
+							},
+						})
+							.then((response) => {
+								let data = response.data;
+								resolve(data);
+								commit("clearUploadPercentage");
+							})
+							.catch((err) => {
+								commit("clearUploadPercentage");
+								apiErrorFunction({ err, commit, reject });
+							});
 					})
 					.catch((err) => {
-						commit("clearUploadPercentage");
 						apiErrorFunction({ err, commit, reject });
 					});
 			});
@@ -168,21 +170,30 @@ export default new Vuex.Store({
 		},
 		apiCall({ commit, state }, partConfig) {
 			return new Promise((resolve, reject) => {
-				if (!state.auth) {
-					throw "no auth token found";
-				}
-				axios({
-					...partConfig,
-					headers: {
-						Authorization: state.authToken,
-					},
-				})
-					.then((response) => {
-						// console.log(response);
-						let data = response.data;
-						resolve(data);
+				console.log(this);
+				this._vm.$auth
+					.getTokenSilently()
+					.then((token) => {
+						console.log(token);
+						if (!token) {
+							throw "no auth token found";
+						}
+						axios({
+							...partConfig,
+							headers: {
+								Authorization: "Bearer " + token,
+							},
+						})
+							.then((response) => {
+								console.log(response);
+								let data = response.data;
+								resolve(data);
+							})
+							.catch((err) => apiErrorFunction({ err, commit, reject }));
 					})
-					.catch((err) => apiErrorFunction({ err, commit, reject }));
+					.catch((err) => {
+						apiErrorFunction({ err, commit, reject });
+					});
 			});
 		},
 		fileDownload_API_Call({ state, commit }, partConfig) {

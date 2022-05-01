@@ -19,6 +19,15 @@ Vue.use(Auth0Plugin, {
 	audience: "https://plc-api-server.herokuapp.com/v1",
 });
 
+// router.beforeEach((to, from, next) => {
+// 	// let userType = store.getters.userType || Number(localStorage.userType);
+// 	// if ((to.meta.policy && to.meta.policy.includes(userType)) || to.path == "/") {
+// 	// 	next();
+// 	// } else {
+// 	// 	router.push({ path: "/" });
+// 	// }
+// });
+
 Vue.config.productionTip = false;
 
 new Vue({
