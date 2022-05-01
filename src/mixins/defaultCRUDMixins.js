@@ -10,15 +10,7 @@ const defaultCRUDMixins = {
 	data: () => ({
 		viewMoreModal: false,
 	}),
-	computed: {
-		...mapGetters(["USER", "ADMIN", "userType"]),
-		isUser: function () {
-			return this.userType == this.USER;
-		},
-		isOnlyAdmin: function () {
-			return this.userType == this.ADMIN;
-		},
-	},
+	computed: {},
 	methods: {
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog", "openSnackbar"]),
 	},

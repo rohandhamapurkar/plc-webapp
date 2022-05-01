@@ -2,15 +2,11 @@ import Vuex from "vuex";
 import Vue from "vue";
 
 import axios from "axios";
-import apiEndpoints from "@/api_endpoints";
 
 import Templates from "./views/templates/store";
 import Datasets from "./views/datasets/store";
 import Builder from "./views/builder/store";
 import Jobs from "./views/jobs/store";
-
-import { getInstance } from "./auth/index";
-const auth0Instance = getInstance();
 
 Vue.use(Vuex);
 const initialState = () => ({
@@ -112,7 +108,7 @@ export default new Vuex.Store({
 	actions: {
 		apiCallWithHeaderConfig({ commit, state }, { partConfig, headerConfig }) {
 			return new Promise((resolve, reject) => {
-				auth0Instance
+				this._vm.$auth
 					.getTokenSilently()
 					.then((token) => {
 						if (!token) {
@@ -170,7 +166,6 @@ export default new Vuex.Store({
 		},
 		apiCall({ commit, state }, partConfig) {
 			return new Promise((resolve, reject) => {
-				console.log(this);
 				this._vm.$auth
 					.getTokenSilently()
 					.then((token) => {
@@ -198,71 +193,42 @@ export default new Vuex.Store({
 		},
 		fileDownload_API_Call({ state, commit }, partConfig) {
 			return new Promise((resolve, reject) => {
+				this._vm.$auth
+					.getTokenSilently()
+					.then((token) => {
+						axios({
+							...partConfig,
+							headers: {
+								Authorization: "Bearer " + token,
+							},
+							onDownloadProgress: (progressEvent) => {
+								console.log(progressEvent);
+								console.log((progressEvent.loaded * 100) / progressEvent.total);
+							},
+						})
+							.then((response) => {
+								let data = response.data;
+								resolve({ data, response });
+							})
+							.catch((err) => apiErrorFunction({ err, commit, reject }));
+					})
+					.catch((err) => {
+						apiErrorFunction({ err, commit, reject });
+					});
 				if (!state.auth) {
 					throw "no auth token found";
 				}
-				axios({
-					...partConfig,
-					headers: {
-						Authorization: state.authToken,
-					},
-					onDownloadProgress: (progressEvent) => {
-						console.log(progressEvent);
-						console.log((progressEvent.loaded * 100) / progressEvent.total);
-					},
-				})
-					.then((response) => {
-						let data = response.data;
-						resolve({ data, response });
-					})
-					.catch((err) => apiErrorFunction({ err, commit, reject }));
 			});
 		},
 
-		uploadImageToGDrive: async ({ commit, dispatch }, payload) => {
-			let fail = (msg) => commit("failure", msg);
-			return dispatch(
-				"apiCallWithHeaderConfig",
-				{
-					partConfig: {
-						method: "post",
-						data: payload.file,
-						url: apiEndpoints.UPLOAD_USER_TEMPLATE_IMAGE,
-						params: payload.params,
-					},
-					headerConfig: {
-						"Content-Type": "application/octet-stream",
-					},
-				},
-				{ root: true }
-			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to upload template image");
-					return data;
-				})
-				.catch((err) => {
-					console.error("Err:", err);
-					fail(err.toString() || "Failed to upload template image");
-					return {
-						ok: false,
-						message: err.message,
-					};
-				});
-		},
+		uploadImageToGDrive: async ({ commit, dispatch }, payload) => {},
 	},
 	getters: {
 		loaderDialog: (state) => state.loaderDialog,
 		snackbarState: (state) => state.snackbarState,
 		snackbarText: (state) => state.snackbarText,
 		snackbarTime: (state) => state.snackbarTime,
-		userType: (state) => state.userType,
-		auth: (state) => state.auth,
-		authToken: (state) => state.authToken,
-		refreshToken: (state) => state.refreshToken,
-		userData: (state) => state.userData,
 		uploadPercentage: (state) => state.uploadPercentage,
 		currentState: (state) => state.currentState,
-		ADMIN: (state) => state.ADMIN,
-		USER: (state) => state.USER,
 	},
 });

@@ -28,22 +28,12 @@ export default {
 				{ root: true }
 			)
 				.then((data) => {
-					if (data.ok) {
-						return {
-							ok: true,
-							totalCount: data.totalCount,
-							fetchCount: data.fetchCount,
-							list: data.data,
-						};
-					} else {
-						fail(data.message || "Failed to Load Templates List");
-						return {
-							ok: false,
-							totalCount: data.totalCount,
-							fetchCount: 0,
-							list: [],
-						};
-					}
+					return {
+						ok: true,
+						// totalCount: data.totalCount,
+						// fetchCount: data.fetchCount,
+						list: data,
+					};
 				})
 				.catch((err) => {
 					console.error("Err:", err);

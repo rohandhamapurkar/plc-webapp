@@ -150,12 +150,7 @@ export default {
 	methods: {
 		...mapActions(["logout"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog", "resetState", "openSnackbar", "closeSnackbar"]),
-		setRouteItems() {
-			if (this.userType == this.ADMIN) {
-				let tempArray = [];
-				this.routeItems = this.routeItems.concat(tempArray);
-			}
-		},
+		setRouteItems() {},
 		toggleNav() {
 			this.navigationToggle = !this.navigationToggle;
 		},
@@ -194,16 +189,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapGetters([
-			"loaderDialog",
-			"userData",
-			"userType",
-			"snackbarState",
-			"snackbarText",
-			"snackbarTime",
-			"ADMIN",
-			"USER",
-		]),
+		...mapGetters(["loaderDialog", "snackbarState", "snackbarText", "snackbarTime"]),
 	},
 	watch: {
 		snackbarState(nv) {

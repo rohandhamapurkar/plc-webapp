@@ -310,11 +310,8 @@ export default {
 		this.initialiseFormElements();
 	},
 	mounted() {},
-	computed: {
-		...mapGetters(["countries", "partners", "zone", "businessType"]),
-	},
+	computed: {},
 	methods: {
-		// ...mapActions("UserManagement", ["getUserList"]),
 		checkWidth(width) {
 			if (width) {
 				return width;

@@ -19,29 +19,16 @@ export default {
 	 * Clear all references to any previous timeouts that might have persisted.
 	 * Initiate check for if the user session exists
 	 */
-	created() {
-		// this.expiryBuffer = 60 * 1000;
-		// let id = setTimeout(function () {}, 0); // This Clear all references to any previous timeouts
-		// // console.log("In memory timeouts", id);
-		// while (id--) {
-		// 	clearTimeout(id); // Will do nothing if no timeout with id is present
-		// }
-		// this.checkUserSession();
-	},
+	created() {},
 	mounted() {},
-	data: () => ({
-		expiryBuffer: 60 * 1000,
-		refreshTokenTimeoutRef: 0,
-		loaderDialog: false,
-		app: true,
-	}),
+	data: () => ({}),
 	methods: {
 		...mapActions([]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 	},
 	destroyed() {},
 	computed: {
-		...mapGetters(["auth", "authToken", "refreshToken", "currentState"]),
+		...mapGetters(["currentState"]),
 		showApp: function () {
 			return this.$auth.isAuthenticated;
 		},
