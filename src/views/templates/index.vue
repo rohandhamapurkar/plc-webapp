@@ -23,8 +23,8 @@
 						<div>Template</div>
 						<p class="text-h4 text--primary">{{ templateItem.name }}</p>
 						<div class="text--primary">
-							Created On: {{ getFormattedDate(templateItem.record.createdOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
-							Updated On: {{ getFormattedDate(templateItem.record.updatedOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
+							Created On: {{ getFormattedDate(templateItem.createdOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
+							Updated On: {{ getFormattedDate(templateItem.updatedOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
 						</div>
 					</v-card-text>
 					<v-card-actions>
@@ -143,7 +143,7 @@ export default {
 		getData() {
 			this.openLoaderDialog();
 			this.getTemplatesList({
-				filter: this.filter,
+				searchText: this.filter.searchText,
 				pageSize: this.pageSize,
 				pageNo: this.pageNo,
 			}).then((data) => {
@@ -161,62 +161,35 @@ export default {
 		},
 
 		async formOutput(data) {
-			var imageFile = data.imageUrl;
-			var inputFormData = JSON.parse(JSON.stringify(data));
-
+			let form = new FormData();
+			if (data.imageUrl.fileSize !== 0) form.append("file", data.imageUrl);
+			form.append("name", data.name);
+			console.log(form);
 			this.openLoaderDialog();
-			if (imageFile.size == 0) {
-				delete inputFormData.imageUrl;
-				return this.editOrCreate(inputFormData);
-			}
-			let respData1 = await this.uploadImageToGDrive({
-				params: {
-					mimeType: imageFile.type,
-					filename: imageFile.name,
-				},
-				file: imageFile,
-			});
-			if (respData1.ok) {
-				inputFormData.imageUrl = respData1.publicLink;
-				await this.editOrCreate(inputFormData);
-			} else {
-				this.closeLoaderDialog();
-				this.openSnackbar({ text: "Couldn't upload image" });
-			}
-			this.closeLoaderDialog();
+			return this.editOrCreate(form, data._id);
 		},
 
-		async editOrCreate(inputFormData) {
+		async editOrCreate(inputFormData, id) {
 			if (!this.isEditMode) {
-				let data = await this.addTemplate(inputFormData);
-				console.log("here", data);
+				let err = await this.addTemplate(inputFormData);
 				this.closeLoaderDialog();
-				if (data.ok) {
-					console.log("here");
-					this.openSnackbar({ text: "Sucessfully Added Template" });
-					this.getData();
-					this.closeForm();
-				} else {
-					this.openSnackbar({ text: data.message });
-				}
+				if (err) this.openSnackbar({ text: err.message });
+				else this.openSnackbar({ text: "Sucessfully Added Template" });
 			} else {
-				let data = await this.editTemplate(inputFormData);
-				this.closeLoaderDialog();
-				if (data.ok) {
-					this.openSnackbar({ text: "Sucessfully Edited Template" });
-					this.getData();
-					this.closeForm();
-				} else {
-					this.openSnackbar({ text: data.message });
-				}
+				let err = await this.editTemplate({ form: inputFormData, id });
+				if (err) this.openSnackbar({ text: err.message });
+				else this.openSnackbar({ text: "Sucessfully Edited Template" });
 			}
+			this.closeLoaderDialog();
+			this.getData();
+			this.closeForm();
 		},
 
 		getEditRowObject(data) {
 			return {
 				...data,
 				_id: data._id,
-				updatedOn: data.record.updatedOn,
+				updatedOn: data.updatedOn,
 			};
 		},
 
@@ -224,6 +197,7 @@ export default {
 			this.dialogModal = true;
 			this.selectedCardInfo = selectedEntry;
 			this.dialogModalTitle = selectedEntry.name;
+			console.log(this.selectedCardInfo);
 		},
 
 		deleteTemplateEntry(entry) {
@@ -233,14 +207,10 @@ export default {
 					_id: entry._id,
 				}).then((data) => {
 					this.closeLoaderDialog();
-					if (data.ok) {
-						this.openSnackbar({
-							text: "Sucessfully Deleted the Template",
-						});
-						this.getData();
-					} else {
-						this.openSnackbar({ text: data.message });
-					}
+					this.openSnackbar({
+						text: "Sucessfully Deleted the Template",
+					});
+					this.getData();
 				});
 			}
 		},

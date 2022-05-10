@@ -64,8 +64,8 @@
 							<div>Template</div>
 							<p class="text-h4 text--primary">{{ templateItem.name }}</p>
 							<div class="text--primary">
-								Created On: {{ getFormattedDate(templateItem.record.createdOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
-								Updated On: {{ getFormattedDate(templateItem.record.updatedOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
+								Created On: {{ getFormattedDate(templateItem.createdOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
+								Updated On: {{ getFormattedDate(templateItem.updatedOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
 							</div>
 						</v-card-text>
 						<v-card-actions>
@@ -160,7 +160,7 @@ export default {
 			this.isLoading = true;
 
 			this.getDatasetsList({
-				filter: { searchText: val },
+				searchText: val,
 				pageSize: 10,
 				pageNo: 1,
 			}).then((data) => {
@@ -171,13 +171,13 @@ export default {
 	},
 	methods: {
 		...mapActions("Templates", ["getTemplatesList"]),
-		...mapActions("Datasets", ["getDatasetsList"]),
+		...mapActions("Datasets", ["getDatasetsList", "getDatasetData"]),
 		...mapActions("Builder", ["submitJob"]),
 		...mapMutations(["openLoaderDialog", "closeLoaderDialog"]),
 		getData() {
 			this.openLoaderDialog();
 			this.getTemplatesList({
-				filter: this.filter,
+				searchText: this.filter.searchText,
 				pageSize: this.pageSize,
 				pageNo: this.pageNo,
 			}).then((data) => {
@@ -242,11 +242,7 @@ export default {
 			this.openLoaderDialog();
 			this.submitJob(payload).then((data) => {
 				this.closeLoaderDialog();
-				if (data.ok) {
-					this.openSnackbar({ text: "Sucessfully submitted job for processing" });
-				} else {
-					this.openSnackbar({ text: data.message });
-				}
+				this.openSnackbar({ text: "Sucessfully submitted job for processing" });
 			});
 		},
 

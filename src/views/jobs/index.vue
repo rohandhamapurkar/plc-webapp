@@ -11,7 +11,7 @@
 						<v-list-item-title v-text="`Job Id: ${jobItem._id}`"></v-list-item-title>
 
 						<v-list-item-subtitle
-							v-text="getFormattedDate(jobItem.record.createdOn, 'DD/MM/YYYY - hh:mm A UTC')"
+							v-text="getFormattedDate(jobItem.createdOn, 'DD/MM/YYYY - hh:mm A UTC')"
 						></v-list-item-subtitle>
 					</v-list-item-content>
 					<v-list-item-action>
@@ -41,25 +41,32 @@
 						<span class="text-h6">Job Output</span>
 						<v-spacer></v-spacer>
 					</v-card-title>
-					<v-card-text class="py-0">
+					<v-card-text class="mt-2">
 						<span
 							v-if="
 								selectedJobInfo.changelog[0].status === 'SUCCESS' &&
-								selectedJobInfo.jobInfo.hasOwnProperty('outputFile')
+								selectedJobInfo.jobInfo.hasOwnProperty('outputFileLink')
 							"
 							class="text-h6"
+							style="color: green"
 						>
 							Job Completed Download output here
 							<v-spacer></v-spacer>
-							<v-btn @click="downloadOutputFile(selectedJobInfo.jobInfo.outputFile)"> Download </v-btn>
+							<v-btn
+								color="teal lighten-2"
+								class="mt-2"
+								@click="downloadOutputFile(selectedJobInfo.jobInfo.outputFileLink)"
+							>
+								Download
+							</v-btn>
 						</span>
 						<span
 							class="text-h6"
 							v-else-if="
 								selectedJobInfo.changelog[0].status === 'SUCCESS' &&
-								!selectedJobInfo.jobInfo.hasOwnProperty('outputFile')
+								!selectedJobInfo.jobInfo.hasOwnProperty('outputFileLink')
 							"
-							>Job Completed Output zip file not available</span
+							>Something went wrong while generating output zip</span
 						>
 						<span class="text-h6" v-else-if="selectedJobInfo.changelog[0].status === 'ERROR'"
 							>Job encountered an error</span
@@ -78,7 +85,7 @@
 						<span class="text-h6">Job Logs</span>
 						<v-spacer></v-spacer>
 					</v-card-title>
-					<v-card-text class="py-0">
+					<v-card-text class="mt-2">
 						<v-timeline dense>
 							<v-slide-x-reverse-transition group hide-on-leave>
 								<v-timeline-item
@@ -111,13 +118,11 @@ import DialogModal from "@/components/DialogModal.vue";
 import { mapActions, mapMutations } from "vuex";
 
 const statusHashMap = {
-	ARCHIVING_FILES: { icon: "mdi-information", color: "info", text: "Archiving Files" },
-	DELETING_TEMP_FILES: { icon: "mdi-information", color: "info", text: "Clearing temporary files" },
+	IN_QUEUE: { icon: "mdi-cloud-check", color: "info", text: "Job In Queue" },
+	ASSERTING_JOB: { icon: "mdi-cloud-check", color: "info", text: "Job In Queue" },
+	PROCESSING_FILES: { icon: "mdi-progress-clock", color: "info", text: "Processing Job" },
 	ERROR: { icon: "mdi-alert-circle", color: "error", text: "Process Errored" },
-	IN_QUEUE: { icon: "mdi-information", color: "info", text: "Job In Queue" },
-	PROCESSING_FILES: { icon: "mdi-information", color: "info", text: "Processing Job" },
-	PUSHED_TO_QUEUE: { icon: "mdi-alert", color: "warning", text: "Pushed Job to Queue" },
-	SUCCESS: { icon: "mdi-check-circle'", color: "success", text: "Job completed successfully" },
+	SUCCESS: { icon: "mdi-check-bold", color: "success", text: "Job completed successfully" },
 };
 export default {
 	name: "Jobs",
@@ -160,30 +165,27 @@ export default {
 			this.getJobDetails({
 				_id: selectedEntry._id,
 			}).then((data) => {
-				if (data.ok) {
-					this.selectedJobInfo = {
-						jobInfo: selectedEntry,
-						changelog: data.jobDetails.map((e, index) => {
-							if (statusHashMap[e.status])
-								return {
-									id: index,
-									status: e.status,
-									...statusHashMap[e.status],
-									date: this.getFormattedDate(e.record.createdOn, "DD/MM/YYYY - hh:mm:ss A UTC"),
-								};
-							else
-								return {
-									id: index,
-									status: e.status,
-									icon: "mdi-information",
-									color: "info",
-									text: e.status,
-									date: this.getFormattedDate(e.record.createdOn, "DD/MM/YYYY - hh:mm:ss A UTC"),
-								};
-						}),
-					};
-					console.log(this.selectedJobInfo);
-				}
+				this.selectedJobInfo = {
+					jobInfo: selectedEntry,
+					changelog: data.jobDetails.map((e, index) => {
+						if (statusHashMap[e.status])
+							return {
+								id: index,
+								status: e.status,
+								...statusHashMap[e.status],
+								date: this.getFormattedDate(e.createdOn, "DD/MM/YYYY - hh:mm:ss A UTC"),
+							};
+						else
+							return {
+								id: index,
+								status: e.status,
+								icon: "mdi-information",
+								color: "info",
+								text: e.status,
+								date: this.getFormattedDate(e.createdOn, "DD/MM/YYYY - hh:mm:ss A UTC"),
+							};
+					}),
+				};
 				this.closeLoaderDialog();
 				this.dialogModal = true;
 			});

@@ -29,16 +29,15 @@ export default {
 			)
 				.then((data) => {
 					return {
-						ok: true,
-						// totalCount: data.totalCount,
-						// fetchCount: data.fetchCount,
-						list: data,
+						totalCount: data.totalCount,
+						fetchCount: data.fetchCount,
+						list: data.data,
 					};
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to Load Templates List");
-					return { ok: false, totalCount: 0, fetchCount: 0, list: [] };
+					return { totalCount: 0, fetchCount: 0, list: [] };
 				});
 		},
 		addTemplate: ({ commit, dispatch }, payload) => {
@@ -52,17 +51,13 @@ export default {
 				},
 				{ root: true }
 			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to add Template");
-					return data;
+				.then(() => {
+					return null;
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to add Template");
-					return {
-						ok: false,
-						message: err.message,
-					};
+					return new Error(err.message);
 				});
 		},
 		editTemplate: ({ commit, dispatch }, payload) => {
@@ -70,23 +65,19 @@ export default {
 			return dispatch(
 				"apiCall",
 				{
-					method: "put",
-					data: payload,
-					url: apiEndpoints.USER_TEMPLATES,
+					method: "patch",
+					data: payload.form,
+					url: apiEndpoints.USER_TEMPLATES + payload.id,
 				},
 				{ root: true }
 			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to edit Template");
-					return data;
+				.then(() => {
+					return null;
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to edit Template");
-					return {
-						ok: false,
-						message: err.message,
-					};
+					return new Error(err.message);
 				});
 		},
 		deleteTemplate: ({ commit, dispatch }, payload) => {
@@ -100,17 +91,13 @@ export default {
 				},
 				{ root: true }
 			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to Delete Template");
-					return data;
+				.then(() => {
+					return null;
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to Delete Template");
-					return {
-						ok: false,
-						message: err.message,
-					};
+					return new Error(err.message);
 				});
 		},
 	},

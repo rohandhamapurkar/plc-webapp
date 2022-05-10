@@ -23,27 +23,17 @@ export default {
 				{
 					method: "get",
 					params: payload,
-					url: apiEndpoints.USER_JOBS_LIST,
+					url: apiEndpoints.USER_JOB,
 				},
 				{ root: true }
 			)
 				.then((data) => {
-					if (data.ok) {
-						return {
-							ok: true,
-							totalCount: data.totalCount,
-							fetchCount: data.fetchCount,
-							list: data.data,
-						};
-					} else {
-						fail(data.message || "Failed to Load Jobs List");
-						return {
-							ok: false,
-							totalCount: data.totalCount,
-							fetchCount: 0,
-							list: [],
-						};
-					}
+					return {
+						ok: true,
+						totalCount: data.totalCount,
+						fetchCount: data.fetchCount,
+						list: data.data,
+					};
 				})
 				.catch((err) => {
 					console.error("Err:", err);
@@ -57,23 +47,15 @@ export default {
 				"apiCall",
 				{
 					method: "get",
-					url: apiEndpoints.USER_JOB + payload._id,
+					url: apiEndpoints.USER_JOB + "job-changelog/" + payload._id,
 				},
 				{ root: true }
 			)
 				.then((data) => {
-					if (data.ok) {
-						return {
-							ok: true,
-							jobDetails: data.data,
-						};
-					} else {
-						fail(data.message || "Failed to Load Jobs List");
-						return {
-							ok: false,
-							jobDetails: {},
-						};
-					}
+					return {
+						ok: true,
+						jobDetails: data.data,
+					};
 				})
 				.catch((err) => {
 					console.error("Err:", err);

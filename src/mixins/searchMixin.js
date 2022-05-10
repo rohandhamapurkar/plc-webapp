@@ -28,21 +28,15 @@ const searchMixins = {
 	methods: {
 		...mapMutations(["openSnackbar"]),
 		checkForErrorMessage(data, key) {
-			if (data.totalCount === 0 && data.ok) {
+			if (data.totalCount === 0) {
 				// Enters This condition when theres no data in the database, hence totalcount = 0 and data is 'ok' which means there was no errors in fetching the data
 				this.showErrorMessage = true;
 				this.errorMessage = "No data found.";
 				return null;
-			} else if (data.fetchCount === 0 && data.ok) {
+			} else if (data.fetchCount === 0) {
 				// Enters This condition when theres is data in the database but still nothing was fetched, for example when we filter things when we use advance search, hence fetchcount = 0 and data is 'ok' which means there is no errors in fetching the data
 				this.showErrorMessage = true;
 				this.errorMessage = "No Results for your Search. Please try again.";
-				return null;
-			} else if (!data.ok) {
-				// Enters This condition data.ok is set to false which means there was an error while fetching the data
-				this.openSnackbar({ text: `Failed to Fetch ${key} Data` });
-				this.showErrorMessage = true;
-				this.errorMessage = `Failed to Fetch ${key} Data. Please Refresh`;
 				return null;
 			} else {
 				// Enters This condition when Everything is fine

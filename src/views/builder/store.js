@@ -28,7 +28,6 @@ export default {
 				{ root: true }
 			)
 				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to start Job");
 					return data;
 				})
 				.catch((err) => {

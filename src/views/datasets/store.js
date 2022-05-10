@@ -23,32 +23,21 @@ export default {
 				{
 					method: "get",
 					params: payload,
-					url: apiEndpoints.GET_USER_DATASETS,
+					url: apiEndpoints.USER_DATASETS,
 				},
 				{ root: true }
 			)
 				.then((data) => {
-					if (data.ok) {
-						return {
-							ok: true,
-							totalCount: data.totalCount,
-							fetchCount: data.fetchCount,
-							list: data.data,
-						};
-					} else {
-						fail(data.message || "Failed to Load Datasets List");
-						return {
-							ok: false,
-							totalCount: data.totalCount,
-							fetchCount: 0,
-							list: [],
-						};
-					}
+					return {
+						totalCount: data.totalCount,
+						fetchCount: data.fetchCount,
+						list: data.data,
+					};
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to Load Datasets List");
-					return { ok: false, totalCount: 0, fetchCount: 0, list: [] };
+					return { totalCount: 0, fetchCount: 0, list: [] };
 				});
 		},
 		uploadDataset: ({ commit, dispatch }, payload) => {
@@ -67,17 +56,13 @@ export default {
 				},
 				{ root: true }
 			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to upload dataset file");
-					return data;
+				.then(() => {
+					return null;
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to upload dataset file");
-					return {
-						ok: false,
-						message: err.message,
-					};
+					return new Error(err.message);
 				});
 		},
 		deleteDataset: ({ commit, dispatch }, payload) => {
@@ -86,22 +71,17 @@ export default {
 				"apiCall",
 				{
 					method: "delete",
-					data: payload,
-					url: apiEndpoints.USER_DATASETS,
+					url: apiEndpoints.USER_DATASETS + payload._id,
 				},
 				{ root: true }
 			)
-				.then((data) => {
-					if (!data.ok) fail(data.message || "Failed to Delete Dataset");
-					return data;
+				.then(() => {
+					return null;
 				})
 				.catch((err) => {
 					console.error("Err:", err);
 					fail(err.toString() || "Failed to Delete Dataset");
-					return {
-						ok: false,
-						message: err.message,
-					};
+					return new Error(err.message);
 				});
 		},
 		getDatasetData: ({ commit, dispatch }, payload) => {
@@ -110,23 +90,15 @@ export default {
 				"apiCall",
 				{
 					method: "get",
-					url: apiEndpoints.GET_DATASET_DATA + "/" + payload._id,
+					url: apiEndpoints.USER_DATASETS + payload._id,
 				},
 				{ root: true }
 			)
 				.then((data) => {
-					if (data.ok) {
-						return {
-							ok: true,
-							rows: data.data,
-						};
-					} else {
-						fail(data.message || "Failed to Load Dataset Data");
-						return {
-							ok: false,
-							rows: [],
-						};
-					}
+					return {
+						ok: true,
+						rows: data.data,
+					};
 				})
 				.catch((err) => {
 					console.error("Err:", err);

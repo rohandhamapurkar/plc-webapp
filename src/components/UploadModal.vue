@@ -110,15 +110,12 @@ export default {
 		uploadFile() {
 			let formData = this.createFormData(this.file, this.extraFieldsDataCapture);
 			this.showProgress = true;
-			this.uploadFunction(formData).then((data) => {
+			this.uploadFunction(formData).then((err) => {
 				this.showProgress = false;
-				if (data.ok) {
-					this.openSnackbar({ text: "File Upload Successful." });
-					this.closeModal();
-					this.resetModalState();
-				} else {
-					this.openSnackbar({ text: data.message });
-				}
+				if (err) this.openSnackbar({ text: "File Upload Failed." });
+				else this.openSnackbar({ text: "File Upload Successful." });
+				this.closeModal();
+				this.resetModalState();
 			});
 		},
 

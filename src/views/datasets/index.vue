@@ -23,12 +23,12 @@
 						<div>Dataset</div>
 						<p class="text-h4 text--primary">{{ datasetItem.name }}</p>
 						<div class="text--primary">
-							Created On: {{ getFormattedDate(datasetItem.record.createdOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
+							Created On: {{ getFormattedDate(datasetItem.createdOn, "DD/MM/YYYY - hh:mm A UTC") }}<br />
 						</div>
 					</v-card-text>
 					<v-card-actions>
 						<v-btn @click="openViewMoreModal(datasetItem)" color="primary" text> View </v-btn>
-						<v-btn @click="deleteTemplateEntry(datasetItem)" color="red" text> Delete </v-btn>
+						<v-btn @click="deleteDatasetEntry(datasetItem)" color="red" text> Delete </v-btn>
 					</v-card-actions>
 				</v-card>
 			</div>
@@ -80,7 +80,7 @@
 			:downloadSampleFunc="downloadSampleFileFunc"
 			:showDownloadSampleButton="true"
 			:extraFormFields="[{ text: 'Enter Dataset Name', name: 'name' }]"
-			formDataName="dataset"
+			formDataName="file"
 		>
 		</UploadModal>
 
@@ -134,7 +134,7 @@ export default {
 		getData() {
 			this.openLoaderDialog();
 			this.getDatasetsList({
-				filter: this.filter,
+				searchText: this.filter.searchText,
 				pageSize: this.pageSize,
 				pageNo: this.pageNo,
 			}).then((data) => {
@@ -175,16 +175,17 @@ export default {
 				this.openLoaderDialog();
 				this.deleteDataset({
 					_id: entry._id,
-				}).then((data) => {
+				}).then((err) => {
 					this.closeLoaderDialog();
-					if (data.ok) {
+					if (err)
+						this.openSnackbar({
+							text: "Could not delete dataset",
+						});
+					else
 						this.openSnackbar({
 							text: "Sucessfully Deleted the Dataset",
 						});
-						this.getData();
-					} else {
-						this.openSnackbar({ text: data.message });
-					}
+					this.getData();
 				});
 			}
 		},

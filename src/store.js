@@ -28,14 +28,14 @@ let apiErrorFunction = ({ err, commit, reject }) => {
 		commit("openSnackbar", { text: "Network Error" });
 		console.error("Network Error");
 		commit("closeLoaderDialog");
-	} else if (err.response.status == 401) {
+	} else if (err.response && err.response.status == 401) {
 		localStorage.clear();
 		commit("resetState");
-	} else if (err.response.status == 400) {
+	} else if (err.response && err.response.status == 400) {
 		commit("openSnackbar", {
 			text: err.response.data.message || "Request Failed, please try again",
 		});
-	} else if (err.response.status == 500) {
+	} else if (err.response && err.response.status == 500) {
 		console.error("Internal SERVER ERROR");
 	} else {
 		commit("openSnackbar", {
@@ -169,7 +169,6 @@ export default new Vuex.Store({
 				this._vm.$auth
 					.getTokenSilently()
 					.then((token) => {
-						console.log(token);
 						if (!token) {
 							throw "no auth token found";
 						}
@@ -180,7 +179,6 @@ export default new Vuex.Store({
 							},
 						})
 							.then((response) => {
-								console.log(response);
 								let data = response.data;
 								resolve(data);
 							})
