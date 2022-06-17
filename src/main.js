@@ -13,10 +13,10 @@ Vue.use(Vuelidate);
 
 // Install the authentication plugin here
 Vue.use(Auth0Plugin, {
-	domain: "paperless-clone-auth.eu.auth0.com",
-	clientId: "1JIAceS5pg95cDBZ8PxCzHu6TkwDddnJ",
+	domain: "paperless-auth.eu.auth0.com",
+	clientId: "ChZhHupxRQFbOBijlkazp5TAlqQXwb2G",
 	redirect_uri: window.location.origin,
-	audience: "https://plc-api-server.herokuapp.com/v1",
+	audience: "https://paperless-clone.herokuapp.com/v1",
 });
 
 router.beforeEach((to, from, next) => {
