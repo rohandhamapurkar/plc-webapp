@@ -204,7 +204,7 @@ export default {
 			if (window.confirm("Do you really want to delete the template?")) {
 				this.openLoaderDialog();
 				this.deleteTemplate({
-					_id: entry._id,
+					id: entry._id,
 				}).then((data) => {
 					this.closeLoaderDialog();
 					this.openSnackbar({

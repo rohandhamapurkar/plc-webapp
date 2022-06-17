@@ -87,7 +87,7 @@ export default {
 				{
 					method: "delete",
 					data: payload,
-					url: apiEndpoints.USER_TEMPLATES,
+					url: apiEndpoints.USER_TEMPLATES + payload.id,
 				},
 				{ root: true }
 			)
