@@ -241,8 +241,13 @@ export default {
 			this.resetState();
 			this.openLoaderDialog();
 			this.submitJob(payload).then((data) => {
-				this.closeLoaderDialog();
-				this.openSnackbar({ text: "Sucessfully submitted job for processing" });
+				if (data.hasOwnProperty("ok") && !data.ok) {
+					this.closeLoaderDialog();
+					this.openSnackbar({ text: "Failed to submit job" });
+				} else {
+					this.closeLoaderDialog();
+					this.openSnackbar({ text: "Sucessfully submitted job for processing" });
+				}
 			});
 		},
 

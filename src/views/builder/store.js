@@ -17,12 +17,14 @@ export default {
 	},
 	actions: {
 		submitJob: ({ commit, dispatch }, payload) => {
+			let form = new FormData();
+			form.append("payload", JSON.stringify(payload));
 			let fail = (msg) => commit("failure", msg);
 			return dispatch(
 				"apiCall",
 				{
 					method: "post",
-					data: payload,
+					data: form,
 					url: apiEndpoints.USER_JOB,
 				},
 				{ root: true }
